@@ -209,6 +209,20 @@
         <input type="file" id="fileIn" multiple class="hidden">
         <div id="files"></div>
       </div>
+      <div class="sec hidden" id="propSec">
+        <h4>Descrição para proposal (QuickBooks)</h4>
+        <p class="muted" style="margin:0 0 8px">Gerada do projeto Mozaik, em inglês, cômodo por cômodo. Escolha os cômodos, ajuste o texto se quiser e copie para a linha do QuickBooks. Mudar uma opção gera o texto de novo.</p>
+        <div class="row" style="flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:8px">
+          <label><input type="checkbox" id="prInst" checked> Instalação incluída</label>
+          <label><input type="checkbox" id="prHw" checked> Puxadores</label>
+          <label><input type="checkbox" id="prOth" checked> Linha "by others"</label>
+          <input id="prFin" placeholder="Finish (ex.: Painted, Benjamin Moore White Dove, satin)" style="flex:1;min-width:220px">
+        </div>
+        <div class="rooms" id="prRooms"></div>
+        <div id="prOut"></div>
+        <button type="button" class="primary" id="prAll" style="margin-top:8px">📋 Copiar todos os selecionados</button>
+        <span class="muted" id="prMsg" style="margin-left:8px"></span>
+      </div>
       </div>
       <div id="tabLead">
       <div class="sec">
@@ -370,7 +384,7 @@ var MZ = (function () {
   function parseRoom(text, idx) {
     var r = xmlRoot(text); if (r.tagName !== 'Room') throw new Error('não é um Room');
     var rs = kid(r, 'RoomSet'), A = function (k) { return at(rs, k).trim(); };
-    var set = { lib: A('AutofillLib'), guide: A('DrawerGuide'), soft: A('DrawerGuideSlowCloseOn') === 'True', roTray: A('ROTray'), roGuide: A('ROTrayGuide'),
+    var set = { lib: A('AutofillLib'), baseDoor: A('NonColumnBaseDoor'), wallDoor: A('NonColumnWallDoor'), topDrw: A('NonColumnTopDrawer'), box: A('DrawerBox'), guide: A('DrawerGuide'), soft: A('DrawerGuideSlowCloseOn') === 'True', roTray: A('ROTray'), roGuide: A('ROTrayGuide'),
       drwPull: A('DrwPulls'), basePull: A('BasePulls'), wallPull: A('WallPulls'), rod: A('ClosetRod'), pins: A('ShelfPins'), legs: A('Legs'), linear: A('LinearLights') };
     var CAT = { '1': 'doors', '2': 'dbox', '3': 'case', '4': 'top', '5': 'edge' }, mats = {};
     kids(rs, 'BaseMatTempSel').forEach(function (b) { var c = CAT[at(b, 'CategoryId')], m = kid(b, 'MaterialTemplateSelection'); if (c && m) mats[c] = at(m, 'MissingTemplateName').trim(); });
@@ -515,8 +529,13 @@ var MZ = (function () {
   /* Cena 3D compacta para o visualizador (fica salva no Drive) */
   function scene(job) {
     return { v: 1, rooms: job.rooms.map(function (r) {
-      return { name: r.name, walls: r.walls, tops: r.tops,
-        items: r.items.filter(function (i) { return i.pl && i.g.length; }).map(function (i) { return { lb: i.num ? i.label : '', n: i.name, fc: i.fc, pl: i.pl, g: i.g, sp: specOf(i, r.set) }; }) };
+      var st = r.set || {};
+      return { name: r.name, walls: r.walls, tops: r.tops, mats: r.mats || {},
+        set: { lib: st.lib || '', baseDoor: st.baseDoor || '', wallDoor: st.wallDoor || '', topDrw: st.topDrw || '', box: st.box || '', guide: st.guide || '', soft: !!st.soft },
+        items: r.items.filter(function (i) { return i.pl && i.g.length; }).map(function (i) {
+          return { lb: i.num ? i.label : '', n: i.name, fc: i.fc, pl: i.pl, g: i.g, sp: specOf(i, r.set),
+            px: { q: i.qty || 1, d: i.doors || 0, w: i.nDrw || 0, ff: i.nFalse || 0, ro: i.ro || 0, adj: i.adj || 0, fix: i.fix || 0, h: i.hinges || {}, s: i.slides || {}, p: i.pulls || 0, pn: i.pullName || '', l: i.lights || 0, rod: i.rod || 0 } };
+        }) };
     }).filter(function (r) { return r.items.length; }) };
   }
 
@@ -1350,6 +1369,125 @@ function renderDetail(d) {
   var have = d.checklists.map(function (c) { return c.name; });
   $('#tplSel').innerHTML = S.templates.filter(function (t) { return have.indexOf(t) < 0; }).map(function (t) { return '<option' + (t === pref ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('') || '<option value="">(todas adicionadas)</option>';
 }
+/* ---------- Descrição para proposal (QuickBooks), cômodo por cômodo, gerada do Mozaik ---------- */
+var PROP = (function () {
+  function cleanMat(m) {
+    m = String(m || '').replace(/^≈\s*/, '').replace(/&quot;|"/g, '').replace(/\s+/g, ' ').trim();
+    m = m.replace(/^(\d{1,2})[-/](\d{1,2})\s*/, '$1/$2" ').replace(/\bW\/O\b/gi, 'White Oak').replace(/\s*\((\d{1,2})-(\d{1,2}) (\w+)\)/, ' ($1/$2" $3)');
+    m = m.replace(/\s+Doors?$/i, '').replace(/\bDADO\b/g, 'dado');
+    return m;
+  }
+  function cleanName(n) { return String(n || '').replace(/_V\b/g, '').replace(/\bHDF\s+/i, '').replace(/\s+/g, ' ').trim(); }
+  function mode(arr) { var c = {}, best = '', n = 0; arr.forEach(function (x) { if (!x) return; c[x] = (c[x] || 0) + 1; if (c[x] > n) { n = c[x]; best = x; } }); return best; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+  function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+  var isFrame = function (n) { return /(stile|rail|\bbr|\btr|\bbl|\btl)$/i.test(String(n || '').replace(/[^a-z0-9]+/gi, ' ').trim()); };
+
+  function facts(room) {
+    var f = { base: 0, wall: 0, tall: 0, doors: 0, drawers: 0, falseF: 0, ro: 0, adj: 0, fix: 0, lights: 0, rods: 0, hinges: {}, slides: {}, pulls: {}, frame: [], panel: [], slab: [], box: [], caseM: [], other: 0, names: [] };
+    room.items.forEach(function (it) {
+      var p = it.px || {}, q = p.q || 1, pl = it.pl || {};
+      if (it.lb) {
+        if (pl.H >= 1500) f.tall += q; else if (pl.e >= 600) f.wall += q; else f.base += q;
+      } else f.other += q;
+      f.names.push(it.n || '');
+      f.doors += (p.d || 0) * q; f.drawers += (p.w || 0) * q; f.falseF += (p.ff || 0) * q; f.ro += (p.ro || 0) * q;
+      f.adj += (p.adj || 0) * q; f.fix += (p.fix || 0) * q; f.lights += (p.l || 0) * q; f.rods += (p.rod || 0) * q;
+      Object.keys(p.h || {}).forEach(function (k) { var n = k.trim(); f.hinges[n] = (f.hinges[n] || 0) + p.h[k] * q; });
+      Object.keys(p.s || {}).forEach(function (k) { var n = k.split('|')[0].replace(/-?\s*FOR .*$/i, '').trim(); f.slides[n] = (f.slides[n] || 0) + p.s[k] * q; });
+      if (p.p) { var pn = (p.pn || 'pull').trim(); f.pulls[pn] = (f.pulls[pn] || 0) + p.p * q; }
+      (it.g || []).forEach(function (o) {
+        var m = o[13] || '', exact = m && m.charAt(0) !== '≈';
+        if (o[10] === 'f') {
+          if (isFrame(o[12])) f.frame.push(m); else if (/panel/i.test(o[12])) f.panel.push(m); else f.slab.push(m);
+        } else if (o[10] === 'd') { if (exact) f.box.push(m); }
+        else if (exact && /end|bottom|deck|top|partition|back/i.test(o[12] || '') && !/^1\/4|^3\/8/.test(m)) f.caseM.push(m);
+      });
+    });
+    return f;
+  }
+
+  function describe(room, opt) {
+    opt = opt || {};
+    var f = facts(room), st = room.set || {}, mats = room.mats || {}, L = [];
+    var nm = String(room.name || '').trim(), bath = /bath|vanity|powder/i.test(nm);
+    var cons = /face ?frame/i.test(st.lib) ? 'face-frame' : /frameless/i.test(st.lib) ? 'frameless (full-access)' : '';
+    var total = f.base + f.wall + f.tall;
+    L.push(nm);
+    L.push('Design, fabrication' + (opt.install !== false ? ', delivery and installation' : ' and delivery') + ' of custom ' + (cons ? cons + ' ' : '') + 'cabinetry' + (bath && f.base && !f.wall && !f.tall ? ' (vanity)' : '') + ' per approved drawings.');
+    var parts = [];
+    if (f.base) parts.push(plural(f.base, bath ? 'vanity/base cabinet' : 'base cabinet'));
+    if (f.wall) parts.push(plural(f.wall, 'wall cabinet'));
+    if (f.tall) parts.push(plural(f.tall, 'tall cabinet'));
+    if (parts.length) L.push('- Cabinets: ' + list(parts) + (parts.length > 1 ? ' (' + total + ' total)' : ''));
+    var caseM = cleanMat(mode(f.caseM) || mats.case);
+    if (caseM) L.push('- Cabinet boxes: ' + caseM);
+    var style = cleanName(st.baseDoor), frame = cleanMat(mode(f.frame)), panel = cleanMat(mode(f.panel)), slab = cleanMat(mode(f.slab));
+    var fronts = [];
+    if (f.doors) fronts.push(plural(f.doors, 'door'));
+    if (f.drawers) fronts.push(plural(f.drawers, 'drawer front'));
+    if (f.falseF) fronts.push(plural(f.falseF, 'false front'));
+    if (fronts.length) {
+      var how = f.frame.length ? (style ? style + ' ' : '') + '5-piece' + (frame ? ' — ' + frame + ' frames' : '') + (panel ? ' with ' + panel + ' panels' : '')
+        : (style ? style : 'Slab') + (slab ? ' — ' + slab : '');
+      L.push('- Doors and drawer fronts: ' + how + ' (' + list(fronts) + ')');
+    }
+    if (f.drawers || f.ro) {
+      var box = cleanName(st.box).replace(/^drawer[-\s]*/i, '').replace(/\s*drawer\s*(for undermount)?/i, '').replace(/\s*box$/i, '').replace(/^(\d{1,2})\/(\d{1,2})\s*/, '$1/$2" ').trim(), bm = cleanMat(mode(f.box));
+      var sl = Object.keys(f.slides).map(function (k) { return k.replace(/\s*undermount\s*/i, ' ').trim(); }).filter(function (k, i, a) { return a.indexOf(k) === i; });
+      L.push('- Drawers: ' + (box ? box + ' drawer boxes' : 'drawer boxes') + (bm ? ' in ' + bm : '') + (sl.length ? ' on ' + list(sl) + ' undermount slides' : '') + (st.soft ? ' (soft-close)' : '') + (f.ro ? '; ' + plural(f.ro, 'roll-out tray') : ''));
+    }
+    var hk = Object.keys(f.hinges);
+    if (hk.length) L.push('- Hinges: ' + list(hk) + ' concealed hinges');
+    var pk = Object.keys(f.pulls).filter(function (k) { return !/^default/i.test(k); });
+    if (pk.length && opt.hardware !== false) L.push('- Decorative hardware: ' + list(pk.map(function (k) { return f.pulls[k] + ' × ' + k; })));
+    var inside = [];
+    if (f.adj) inside.push(plural(f.adj, 'adjustable shelf', 'adjustable shelves'));
+    if (f.fix) inside.push(plural(f.fix, 'fixed shelf', 'fixed shelves'));
+    if (f.rods) inside.push(plural(f.rods, 'closet rod'));
+    if (f.names.some(function (n) { return /trash|waste/i.test(n); })) inside.push('trash pull-out');
+    if (inside.length) L.push('- Interior: ' + list(inside));
+    if (f.lights) L.push('- Lighting: ' + plural(f.lights, 'LED light') + ' (wiring by electrician)');
+    if (f.other) L.push('- Includes finished panels, fillers, toe kicks and trim parts as shown on drawings');
+    if (opt.finish) L.push('- Finish: ' + opt.finish);
+    if (opt.byOthers !== false) L.push('- ' + (room.tops && room.tops.length ? 'Countertops, plumbing' : 'Plumbing') + ', electrical and appliance installation by others');
+    return L.join('\n');
+  }
+  return { describe: describe, facts: facts };
+})();
+
+function renderProp() {
+  var sec = $('#propSec'); if (!S.scene || !S.rooms || !S.rooms.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  if (!S.prSel || S.prFor !== S.sceneFor) { S.prSel = S.rooms.map(function () { return true; }); S.prFor = S.sceneFor; }
+  $('#prRooms').innerHTML = S.rooms.map(function (r, i) { return '<button type="button" data-pr="' + i + '" class="' + (S.prSel[i] ? 'on' : '') + '">' + (S.prSel[i] ? '✓ ' : '') + esc(roomName(r)) + '</button>'; }).join('');
+  var opt = { install: $('#prInst').checked, hardware: $('#prHw').checked, byOthers: $('#prOth').checked, finish: $('#prFin').value.trim() };
+  $('#prOut').innerHTML = S.rooms.map(function (r, i) {
+    if (!S.prSel[i]) return '';
+    var t = PROP.describe(r, opt), n = t.split('\n').length + 1;
+    return '<div style="margin:10px 0"><div class="row" style="justify-content:space-between;align-items:center"><b>' + esc(roomName(r)) + '</b><button type="button" data-prc="' + i + '">📋 Copiar</button></div>' +
+      '<textarea id="prT' + i + '" rows="' + n + '" style="width:100%;font:13px/1.45 Arial,sans-serif;margin-top:4px">' + esc(t) + '</textarea></div>';
+  }).join('');
+}
+function copyText(t) {
+  var ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;left:-9999px;top:0'; document.body.appendChild(ta); ta.select();
+  var ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
+  ta.remove();
+  if (!ok && navigator.clipboard) { navigator.clipboard.writeText(t).catch(function () { }); ok = true; }
+  return ok;
+}
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('#prRooms button'); if (b) { var i = +b.dataset.pr; S.prSel[i] = !S.prSel[i]; renderProp(); return; }
+  var c = e.target.closest('[data-prc]'); if (c) { var ok = copyText($('#prT' + c.dataset.prc).value); c.textContent = ok ? '✔ Copiado' : 'Copie manualmente'; setTimeout(function () { c.textContent = '📋 Copiar'; }, 1800); return; }
+  if (e.target.closest('#prAll')) {
+    var all = S.rooms.map(function (r, i) { var t = S.prSel[i] && $('#prT' + i); return t ? t.value : ''; }).filter(Boolean).join('\n\n');
+    $('#prMsg').textContent = all ? (copyText(all) ? 'Copiado ✔' : 'Não consegui copiar; selecione o texto e copie manualmente.') : 'Nenhum cômodo selecionado.';
+    setTimeout(function () { $('#prMsg').textContent = ''; }, 2500);
+  }
+});
+document.addEventListener('change', function (e) { if (e.target.closest('#propSec input')) renderProp(); });
+document.addEventListener('input', function (e) { if (e.target.id === 'prFin') { clearTimeout(S.prT); S.prT = setTimeout(renderProp, 500); } });
+
 /* ---------- Abas do lead: Lead | Trabalho (por cômodo) ---------- */
 function setTab(t) {
   S.tab = t;
@@ -1358,7 +1496,7 @@ function setTab(t) {
   if (t === 'job' && S.cur) loadRooms();
 }
 function loadRooms() {
-  if (!S.moz) { $('#roomBar').innerHTML = ''; $('#roomView').innerHTML = ''; return; }
+  if (!S.moz) { $('#roomBar').innerHTML = ''; $('#roomView').innerHTML = ''; $('#propSec').classList.add('hidden'); return; }
   if (S.scene) { drawRooms(); return; }
   if (S.sceneLoading) return; S.sceneLoading = true;
   var id = S.cur, tag = S.moz.imported;
@@ -1371,13 +1509,13 @@ function loadRooms() {
 function roomName(r) { return String(r.name || '').trim(); }
 function drawRooms() {
   var rooms = (S.scene.rooms || []).filter(function (r) { return r.items && r.items.length; });
-  if (!rooms.length) { $('#roomBar').innerHTML = ''; $('#roomView').innerHTML = ''; showWhole(true); return; }
+  if (!rooms.length) { $('#roomBar').innerHTML = ''; $('#roomView').innerHTML = ''; showWhole(true); $('#propSec').classList.add('hidden'); return; }
   var all = '<button type="button" data-room="-1" class="' + (S.room < 0 ? 'on' : '') + '">Projeto inteiro<small>' + rooms.length + ' cômodos</small></button>';
   $('#roomBar').innerHTML = all + rooms.map(function (r, i) {
     var n = r.items.filter(function (it) { return it.lb; }).length;
     return '<button type="button" data-room="' + i + '" class="' + (S.room === i ? 'on' : '') + '">' + esc(roomName(r)) + '<small>' + n + ' gabinete' + (n === 1 ? '' : 's') + '</small></button>';
   }).join('');
-  S.rooms = rooms; drawRoom();
+  S.rooms = rooms; drawRoom(); renderProp();
 }
 function showWhole(on) { $('#mz').classList.toggle('hidden', !on); }
 function drawRoom() {
