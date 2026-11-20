@@ -1,0 +1,1715 @@
+<!doctype html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shop Drawings">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Heartwood – Shop drawings</title>
+<script>
+/* Heartwood app: o mesmo app do Google, falando com o servidor por fetch (sem a faixa do Apps Script) */
+(function(){
+ var API='https://script.google.com/macros/s/AKfycbwogqmxck3nu3hj4rDHCymybE535RBU017rDK6BALVLkw-Z6dGJnNQYaxG3jfyp2jiKEQ/exec';
+ function call(fn,args){return fetch(API,{method:'POST',body:JSON.stringify({fn:fn,args:args})}).then(function(r){if(!r.ok)throw new Error('Servidor respondeu '+r.status);return r.json();}).then(function(j){if(!j.ok)throw new Error(j.error||'Erro no servidor');return j.res;});}
+ function runner(ok,fail){return new Proxy({},{get:function(_,k){
+  if(k==='withSuccessHandler')return function(f){return runner(f,fail);};
+  if(k==='withFailureHandler')return function(f){return runner(ok,f);};
+  if(k==='withUserObject')return function(){return runner(ok,fail);};
+  if(typeof k!=='string'||k==='then')return undefined;
+  return function(){var a=[].slice.call(arguments);call(k,a).then(function(r){if(ok)ok(r);},function(e){if(fail)fail(e);else console.error(e);});};
+ }});}
+ var q={};location.search.slice(1).split('&').forEach(function(kv){if(!kv)return;var i=kv.indexOf('=');q[decodeURIComponent(i<0?kv:kv.slice(0,i))]=decodeURIComponent((i<0?'':kv.slice(i+1)).replace(/\+/g,' '));});
+ window.google={script:{run:runner(null,null),url:{getLocation:function(cb){cb({parameter:q,parameters:{},hash:location.hash.slice(1)});}},history:{push:function(){},replace:function(){}},host:{close:function(){}}}};
+ if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+})();
+</script>
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Heartwood Shop Drawings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* Layout: workbench — setup column on the left (job, project, company), spec editor and sheet proofs on the right; stacks on phones. Sheets are paper and stay white in both themes. */
+:root{
+  --bg:#eceee9; --panel:#ffffff; --sunk:#f5f6f2; --fg:#18211c; --muted:#5b6660; --line:#d3d8d1;
+  --green:#1f3a2e; --gold:#b8955a; --accent:#1f3a2e; --on-accent:#f6efe0; --tbd:#b42318; --tbd-bg:#fdecea; --ok:#2e6a44;
+  --ui:"Archivo","Helvetica Neue",Arial,sans-serif; --narrow:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121715; --panel:#1b221e; --sunk:#161c19; --fg:#e7ebe6; --muted:#9aa59f; --line:#2e3833;
+  --accent:#c9a76b; --on-accent:#14201a; --tbd:#f08b7e; --tbd-bg:#3a1d1a; --ok:#7cc596; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --panel:#1b221e; --sunk:#161c19; --fg:#e7ebe6; --muted:#9aa59f; --line:#2e3833;
+  --accent:#c9a76b; --on-accent:#14201a; --tbd:#f08b7e; --tbd-bg:#3a1d1a; --ok:#7cc596; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--ui);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:12px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.brand .em{width:30px;height:30px;background:var(--green);color:#f6efe0;font:700 20px/30px var(--display);text-align:center;outline:1.5px solid var(--gold);outline-offset:-4px;flex:none}
+.brand b{font:700 20px/1 var(--display);letter-spacing:.06em}
+.brand span{color:var(--muted);font-size:13px}
+.status{font-size:13px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px 14px;min-height:42px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.small{min-height:32px;padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+main{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:350px minmax(0,1fr);gap:20px;padding-block:20px 60px}
+@media (max-width:980px){main{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:16px;align-content:start;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+.card h2{margin:0;font:600 13px/1.2 var(--ui);text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.card h3{margin:0;font:700 26px/1.1 var(--display);text-wrap:balance}
+.card p{margin:0;color:var(--muted);font-size:14px;max-width:68ch}
+.drop{position:relative;border:1.5px dashed var(--line);border-radius:8px;padding:16px;display:grid;gap:4px;cursor:pointer;background:var(--sunk)}
+.drop.over{border-color:var(--accent)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop b{font-size:15px}
+.drop small{color:var(--muted);font-size:13px}
+.err{color:var(--tbd);font-weight:600;font-size:14px}
+.note{font-size:13px;color:var(--muted)}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);color:var(--muted)}
+.rooms{display:grid;gap:6px}
+.room{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.room input{width:18px;height:18px;accent-color:var(--accent)}
+.room small{color:var(--muted);font-size:12px;display:block}
+label.f{display:grid;gap:4px;font-size:13px;font-weight:500;color:var(--muted)}
+label.f input,label.f select,label.f textarea{font-size:15px;color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;min-height:40px}
+label.f textarea{min-height:150px;resize:vertical;line-height:1.4}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.logo-row{display:flex;gap:10px;align-items:center}
+.logo-prev{width:72px;height:44px;border:1px solid var(--line);border-radius:4px;background:#fff center/contain no-repeat;flex:none}
+/* spec editor */
+.spec-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.spec{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+table.spec th,table.spec td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top;text-align:left}
+table.spec thead th{background:var(--sunk);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);position:sticky;top:0}
+table.spec td.lab{width:210px;font-weight:600}
+table.spec td.lab button{margin-top:6px}
+table.spec tr.sec td{background:var(--sunk);font:700 12px/1 var(--ui);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding:10px 8px}
+.cell input{width:100%;min-width:170px;border:1px solid var(--line);border-radius:5px;padding:7px 8px;background:var(--panel);font-size:14px}
+.cell input.tbd{border-color:var(--tbd);background:var(--tbd-bg)}
+.cell small{display:block;color:var(--muted);font-size:12px;margin-top:3px;word-break:break-word}
+.cell.na{color:var(--muted);font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border:1px solid var(--tbd);background:var(--tbd-bg);border-radius:3px;vertical-align:-2px;margin-right:6px}
+/* sheet previews */
+.sheets{display:grid;gap:18px}
+.sw{position:relative;overflow:hidden;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.15),0 10px 26px rgba(20,30,25,.16);background:#fff}
+.sw .sheet{transform-origin:0 0;position:absolute;left:0;top:0}
+.empty{padding:28px;border:1.5px dashed var(--line);border-radius:10px;color:var(--muted);text-align:left}
+#exportHost{position:fixed;left:-40000px;top:0;pointer-events:none}
+
+/* ================= SHEET (paper) ================= */
+.sheet{width:1632px;height:1056px;background:#ffffff;color:#141414;font-family:var(--ui);padding:22px;display:block}
+.sheet.letter{width:1056px;height:816px;padding:16px}
+.sheet .frame{height:100%;border:2px solid #141414;display:grid;grid-template-columns:minmax(0,1fr) 232px}
+.sheet.letter .frame{grid-template-columns:minmax(0,1fr) 184px}
+.sheet .ca{padding:16px 18px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.sheet.letter .ca{padding:10px 12px;gap:8px}
+/* title block */
+.tb{border-left:2px solid #141414;display:flex;flex-direction:column;font-size:10px;min-height:0}
+.sheet.letter .tb{font-size:8.5px}
+.tb>div{border-bottom:1px solid #141414;padding:7px 10px}
+.sheet.letter .tb>div{padding:5px 7px}
+.tb .lbl{display:block;font:600 8px/1.2 var(--ui);letter-spacing:.12em;text-transform:uppercase;color:#555;margin-bottom:2px}
+.sheet.letter .tb .lbl{font-size:6.8px}
+.tb b{font-weight:600;font-size:11.5px;display:block;line-height:1.25}
+.sheet.letter .tb b{font-size:9.5px}
+.tb-logo{display:grid;place-items:center;min-height:86px}
+.sheet.letter .tb-logo{min-height:62px}
+.tb-logo img{max-width:100%;max-height:70px;object-fit:contain}
+.wm{display:flex;align-items:center;gap:8px}
+.wm .em{width:38px;height:38px;background:#1f3a2e;color:#f6efe0;font:700 28px/38px var(--display);text-align:center;outline:1.5px solid #b8955a;outline-offset:-5px;flex:none}
+.wm b{font:700 21px/1 var(--display)!important;letter-spacing:.08em;color:#1f3a2e}
+.wm small{display:block;font:600 8px/1 var(--ui);letter-spacing:.32em;color:#555;margin-top:4px}
+.sheet.letter .wm .em{width:30px;height:30px;font-size:22px;line-height:30px}
+.sheet.letter .wm b{font-size:16px!important}
+.tb-co{font-size:9px;line-height:1.45;color:#333}
+.sheet.letter .tb-co{font-size:7.5px}
+.tb-rev table{width:100%;border-collapse:collapse;font-size:9px}
+.sheet.letter .tb-rev table{font-size:7.5px}
+.tb-rev th{text-align:left;font-weight:600;color:#555;border-bottom:1px solid #999;padding:1px 2px}
+.tb-rev td{padding:2px;vertical-align:top}
+.tb-appr .bx{display:flex;flex-direction:column;gap:3px;margin:3px 0 8px}
+.tb-appr .bx span::before{content:"";display:inline-block;width:8px;height:8px;border:1px solid #141414;margin-right:5px;vertical-align:-1px}
+.tb-appr .ln{border-bottom:1px solid #141414;height:18px;margin-bottom:2px}
+.sheet.letter .tb-appr .ln{height:13px}
+.tb-title{flex:1;display:flex;flex-direction:column;justify-content:flex-end}
+.tb-title b{font:700 15px/1.15 var(--ui)!important;text-transform:uppercase;letter-spacing:.02em}
+.sheet.letter .tb-title b{font-size:12px!important}
+.tb-title i{font-style:normal;color:#444;margin-top:3px;font-size:10px}
+.tb-no{display:flex;align-items:baseline;justify-content:space-between;border-bottom:0!important;background:#1f3a2e;color:#f6efe0}
+.tb-no .sn{font:700 30px/1 var(--narrow);letter-spacing:.02em}
+.sheet.letter .tb-no .sn{font-size:22px}
+.tb-no .sof{font:500 10px/1 var(--ui);color:#e3d6bb}
+.tb-no .lbl{color:#e3d6bb}
+/* sheet content parts */
+.vt{display:flex;align-items:center;gap:8px;font-family:var(--narrow)}
+.vt .vn{width:24px;height:24px;border:1.5px solid #141414;border-radius:50%;display:grid;place-items:center;font:700 12px/1 var(--narrow);flex:none}
+.vt b{display:block;font:700 13px/1.1 var(--narrow);text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid #141414;padding-bottom:2px}
+.vt small{display:block;font:500 10px/1.2 var(--narrow);color:#444;margin-top:2px;letter-spacing:.04em}
+.sheet.letter .vt b{font-size:11px}
+.view{display:flex;flex-direction:column;gap:6px;min-height:0;min-width:0}
+.view .dwg{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.region{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:10px}
+.st-h{font:700 12px/1 var(--narrow);text-transform:uppercase;letter-spacing:.08em;margin:2px 0 0}
+table.st{width:100%;border-collapse:collapse;font:400 10.5px/1.3 var(--narrow);table-layout:fixed}
+.sheet.letter table.st{font-size:8.6px}
+table.st th{font:600 8.5px/1.2 var(--ui);letter-spacing:.08em;text-transform:uppercase;text-align:left;background:#1f3a2e;color:#f6efe0;padding:5px 6px;vertical-align:bottom}
+.sheet.letter table.st th{font-size:7px;padding:4px}
+table.st td{border-bottom:1px solid #c9ccc6;padding:4px 6px;vertical-align:top;word-wrap:break-word}
+.sheet.letter table.st td{padding:3px 4px}
+table.st tr.sec td{background:#eef0ea;font:700 9px/1.2 var(--ui);letter-spacing:.12em;text-transform:uppercase;color:#1f3a2e;border-bottom:1px solid #1f3a2e}
+table.st td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.st td.no{font-weight:700;font-size:12px}
+table.st td.k{font-weight:600}
+.tbd{color:#b42318;font-weight:700}
+.moz{display:block;color:#777;font-size:.86em}
+.cols2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;flex:1;min-height:0}
+.sheet.letter .cols2{gap:10px}
+.cols2>*{min-width:0;min-height:0}
+.notes ol{margin:4px 0 0;padding-left:16px;font:400 10.5px/1.4 var(--narrow)}
+.sheet.letter .notes ol{font-size:8.6px}
+.notes li{margin-bottom:3px}
+.confirm{border:1.5px solid #b42318;padding:8px 10px}
+.confirm ul{margin:4px 0 0;padding-left:14px;font:400 10.5px/1.35 var(--narrow);color:#b42318}
+.sheet.letter .confirm ul{font-size:8.6px}
+.apprbig{border:1.5px solid #141414;padding:10px 12px;display:grid;gap:8px;font-size:10.5px}
+.apprbig .bx{display:flex;gap:16px;flex-wrap:wrap}
+.apprbig .bx span::before{content:"";display:inline-block;width:10px;height:10px;border:1px solid #141414;margin-right:6px;vertical-align:-1px}
+.apprbig .sig{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+.apprbig .sig div{border-bottom:1px solid #141414;height:26px;position:relative}
+.apprbig .sig div span{position:absolute;bottom:-14px;left:0;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#555}
+.apprbig p{margin:0;font:400 10px/1.35 var(--narrow);color:#333}
+/* cover */
+.cover{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;height:100%}
+.cv-img{background:#e9e7e1;overflow:hidden;display:grid;place-items:center;min-height:0}
+.cv-img img{width:100%;height:100%;object-fit:cover;display:block}
+.cv-img .ph{font:600 13px/1.4 var(--ui);color:#777;text-align:center;padding:20px}
+.cv-side{display:flex;flex-direction:column;gap:14px;min-height:0}
+.cv-k{font:700 11px/1 var(--ui);letter-spacing:.2em;color:#b8955a;text-transform:uppercase}
+.cv-side h1{margin:0;font:700 46px/1.02 var(--display);color:#1f3a2e;text-wrap:balance}
+.sheet.letter .cv-side h1{font-size:32px}
+.cv-side .who{font:400 14px/1.45 var(--ui);color:#333}
+.cv-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12px;margin:0}
+.cv-dl dt{font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.1em;font-size:9.5px;padding-top:2px}
+.cv-dl dd{margin:0}
+.cv-idx{border-top:2px solid #1f3a2e;padding-top:8px;flex:1;min-height:0;overflow:hidden}
+.cv-idx b{font:700 11px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase}
+.cv-idx ol{list-style:none;margin:8px 0 0;padding:0;font:400 11.5px/1.5 var(--narrow);columns:1}
+.sheet.letter .cv-idx ol{font-size:9.5px}
+.cv-idx li{display:flex;gap:10px}
+.cv-idx li span{font-weight:700;min-width:44px}
+.v3row{display:grid;gap:16px;flex:1;min-height:0}
+.img3d{display:block;object-fit:contain}
+.key3d ol{list-style:none;margin:6px 0 0;padding:0;font:400 11px/1.3 var(--narrow)}
+.sheet.letter .key3d ol{font-size:9px}
+.key3d li{display:grid;grid-template-columns:28px 1fr;gap:2px 6px;padding:4px 0;border-bottom:1px solid #d9dcd6}
+.key3d li span{grid-row:span 2;width:22px;height:22px;border:1.4px solid #141414;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:10.5px}
+.key3d li small{color:#555}
+.secgrid{display:grid;gap:14px;flex:1;min-height:0}
+.secv{border:1px solid #d9dcd6;padding:8px}
+.sec-lg{margin:0;font:400 9.5px/1.35 var(--narrow);color:#333}
+.rgrid{display:grid;gap:14px;flex:1;min-height:0}
+.rimg{min-height:0;display:grid;place-items:center;overflow:hidden}
+.rimg img{width:100%;height:100%;object-fit:contain;display:block}
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.swr{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:6px}
+.swr input[type=color]{width:44px;height:36px;border:1px solid var(--line);border-radius:4px;padding:0;background:none;cursor:pointer}
+.swr b{font-size:13.5px;display:block;word-break:break-word}
+.swr small{font-size:12px;color:var(--muted);display:block}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
+.ptabs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer;color:var(--fg)}
+.ptabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.ptools{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.cbx{display:inline-block;width:11px;height:11px;border:1.3px solid #141414;vertical-align:-1px;background:#fff}
+table.st td.ck{text-align:center;vertical-align:middle}
+table.ckt td{padding-top:7px;padding-bottom:7px}
+ol.cklist{list-style:none;padding-left:0}
+ol.cklist li{padding:3px 0;border-bottom:1px solid #e3e5e0}
+</style>
+
+<header class="top gut">
+  <div class="bar">
+    <div class="brand"><div class="em" aria-hidden="true">H</div><div><b>HEARTWOOD</b> <span>Shop drawings a partir do Mozaik</span></div></div>
+    <span class="status" id="status" role="status"></span>
+    <button class="btn primary" id="pdfBtn" type="button">Baixar PDF</button>
+  </div>
+</header>
+
+<main class="gut">
+  <div class="col">
+    <section class="card" aria-labelledby="h-job">
+      <h2 id="h-job">1 · Job do Mozaik</h2>
+      <label class="drop" id="drop">
+        <b>Selecionar o .zip do job</b>
+        <small>Compacte a pasta do job (C:\Mozaik\Jobs\…) em .zip, do mesmo jeito que no checklist. Também aceita os arquivos Room*.des.</small>
+        <input type="file" id="file" accept=".zip,.des,.dat" multiple aria-label="Arquivo do job do Mozaik">
+      </label>
+      <label class="drop" style="padding:12px">
+        <b>Ou selecionar a pasta do job</b>
+        <small>Aponte a pasta em C:\Mozaik\Jobs (ex.: 85 Tremont St Cambridge MA) e confirme. Não precisa compactar.</small>
+        <input type="file" id="folder" webkitdirectory directory multiple aria-label="Pasta do job do Mozaik">
+      </label>
+      <div id="jobInfo"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-proj">
+      <h2 id="h-proj">2 · Dados do projeto</h2>
+      <label class="f">Nome do projeto<input id="i_project" type="text"></label>
+      <label class="f">Cliente<input id="i_client" type="text"></label>
+      <label class="f">Endereço da obra<input id="i_address" type="text"></label>
+      <div class="g2">
+        <label class="f">Nº do job<input id="i_jobNo" type="text"></label>
+        <label class="f">Data<input id="i_date" type="date"></label>
+      </div>
+      <div class="g2">
+        <label class="f">Desenhado por<input id="i_designer" type="text"></label>
+        <label class="f">Revisão<input id="i_rev" type="text"></label>
+      </div>
+      <label class="f">Descrição da revisão<input id="i_revNote" type="text"></label>
+      <label class="f">Tamanho da folha<select id="i_paper">
+        <option value="tabloid">Tabloid 17 × 11 (recomendado)</option>
+        <option value="letter">Letter 11 × 8.5</option>
+      </select></label>
+      <label class="f">Imagem da capa<select id="i_render"></select></label>
+      <label class="drop" style="padding:10px"><small>Ou envie uma imagem (JPG/PNG) para a capa</small><input type="file" id="renderFile" accept="image/*" aria-label="Imagem da capa"></label>
+    </section>
+
+    <section class="card" aria-labelledby="h-co">
+      <h2 id="h-co">Empresa (fica salvo)</h2>
+      <div class="logo-row"><span class="logo-prev" id="logoPrev"></span>
+        <label class="drop" style="padding:10px;flex:1"><small>Logo da Heartwood (PNG). Sem logo, usa a marca em texto.</small><input type="file" id="logoFile" accept="image/*" aria-label="Logo"></label></div>
+      <button class="btn small" type="button" id="logoClear" hidden>Remover logo</button>
+      <label class="f">Nome<input id="c_name" type="text"></label>
+      <div class="g2">
+        <label class="f">Site<input id="c_web" type="text"></label>
+        <label class="f">Telefone<input id="c_phone" type="text"></label>
+      </div>
+      <label class="f">Notas gerais (uma por linha, em inglês)<textarea id="c_notes"></textarea></label>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card" aria-labelledby="h-spec">
+      <h2 id="h-spec">3 · Especificações</h2>
+      <h3>Confira o que veio do Mozaik e complete o que falta</h3>
+      <p>Cada campo já vem preenchido com o que o Mozaik gravou, mostrado em cinza embaixo. Campos em vermelho saem no PDF como <b>TBD – CONFIRM</b>. O texto que você digitar fica salvo para o próximo job. Ex.: digite uma vez o modelo completo para "Euro Frameless / 110° Full Overlay" e os próximos jobs já vêm preenchidos.</p>
+      <div class="legend"><span><i></i>Falta informação</span><span>Escreva em inglês, porque é o texto que vai para o cliente.</span></div>
+      <div id="specEditor"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-sw">
+      <h2 id="h-sw">4 · Cores das vistas</h2>
+      <p>Cores usadas na planta, nas elevações, nos cortes e nas vistas 3D. O Mozaik grava só o nome da cor (ex.: "20 Wolf Gray"), então a página sugere um tom. Clique na amostra para acertar. A cor fica salva para os próximos jobs.</p>
+      <div class="sw-grid" id="swatches"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-sheets">
+      <h2 id="h-sheets">5 · Documentos do job</h2>
+      <div class="ptabs" role="tablist" id="ptabs"></div>
+      <div class="ptools">
+        <label class="f" style="min-width:210px">Idioma das folhas da oficina<select id="shopLang"><option value="pt">Português</option><option value="en">English</option></select></label>
+        <label class="drop" id="ncDrop" hidden style="padding:10px;flex:1;min-width:240px"><b>G-code das chapas (.nc)</b><small>Selecione os arquivos .nc deste job (um por chapa) para desenhar as chapas.</small><input type="file" id="ncFile" accept=".nc,.tap,.txt,.gcode,.cnc" multiple aria-label="G-code das chapas"></label>
+        <span class="note" id="ncList"></span>
+        <a class="btn small" id="chkLink" hidden href="https://claude.ai/artifact/PHFWQ2DDRBh7wHqb6eohZE" target="_blank" rel="noopener">Abrir o app de checklist</a>
+        <button class="btn small" type="button" id="allBtn">Baixar os 5 PDFs</button>
+      </div>
+      <p id="sheetsNote">Prévia de cada folha do PDF. Ela atualiza enquanto você edita.</p>
+      <div class="sheets" id="sheets"></div>
+    </section>
+  </div>
+</main>
+<div id="exportHost" aria-hidden="true"></div>
+
+<script id="sample" type="application/json">null</script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MM=25.4;
+const nm=v=>parseFloat(v)||0;
+const r1=v=>Math.round(v*10)/10;
+function frac(mm){mm=+mm;if(!isFinite(mm))return'';let v=Math.round(Math.abs(mm)/MM*16)/16;let w=Math.floor(v),f=Math.round((v-w)*16);if(f===16){w++;f=0;}
+ let s;if(f){let n=f,d=16;while(n%2===0){n/=2;d/=2;}s=(w?w+'-':'')+n+'/'+d;}else s=String(w);return(mm<0?'-':'')+s;}
+const fi=mm=>frac(mm)+'"';
+const uniq=a=>[...new Set(a.filter(Boolean))];
+function mode(o){let b='',n=0;for(const k in o)if(o[k]>n){n=o[k];b=k;}return b;}
+function bump(o,k,q){if(!k)return;o[k]=(o[k]||0)+(q==null?1:q);}
+
+/* ---------------- storage ---------------- */
+function load(k,d){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+const DEFAULT_NOTES=['All dimensions are in inches. Overall dimensions must be field verified before fabrication.',
+'Appliance openings are based on the appliances shown. Client to confirm final appliance models and supply specifications before fabrication.',
+'Colors shown on renderings are approximate. Final color and sheen per approved finish sample.',
+'Countertops, plumbing, electrical and appliance installation by others unless noted.',
+'Hardware quantities are taken from the design. Final hardware models per the specification sheet.',
+'Approval of these drawings releases the project for fabrication. Changes after approval may affect cost and schedule.'].join('\n');
+const STD=Object.assign({map:{},std:{},notes:DEFAULT_NOTES,company:{name:'Heartwood Millwork',web:'heartwoodmillwork.com',phone:'781-588-2034'},logo:null,designer:''},load('hw-sd-std-v1',{}));
+let stdTimer=0;const saveStd=()=>{clearTimeout(stdTimer);stdTimer=setTimeout(()=>{if(!save('hw-sd-std-v1',STD))status('Não deu para salvar os padrões neste navegador (logo grande demais?).');},300);};
+
+/* ---------------- Mozaik parsing ---------------- */
+function xmlRoot(text){const i=text.indexOf('<?xml');const doc=new DOMParser().parseFromString(i>=0?text.slice(i):text,'application/xml');
+ if(doc.getElementsByTagName('parsererror').length)throw new Error('read');return doc.documentElement;}
+const kids=(el,tag)=>el?Array.from(el.children).filter(c=>!tag||c.tagName===tag):[];
+const kid=(el,tag)=>el?Array.from(el.children).find(c=>c.tagName===tag)||null:null;
+const at=(el,a)=>(el&&el.getAttribute(a))||'';
+const GRP={};
+'DOOR DOORPANEL DOORFRAME DRAWER DRAWERPANEL DRAWERFRAME PANELIZEDEND'.split(' ').forEach(k=>GRP[k]='front');
+'RAIL STILE FRAME FRAMELESSRAIL NOSING TOE TOESKIN FEND FBACK FINSKIN FINEXTERIOR CLEAT APPLIEDUE'.split(' ').forEach(k=>GRP[k]='ext');
+'FININTERIOR FININTERIORBACK TOP BOTTOM UEND SHELF ROLLOUTSHELF FIXEDSHELF ADJUSTABLESHELF PARTITION DIVIDER UBACK NAILER STRETCHER UFINEXTERIOR UFININTERIOR UFINSKIN SLEEPER SPECIAL CLOSETROD'.split(' ').forEach(k=>GRP[k]='int');
+'DRAWERSIDE DRAWERFRONT DRAWERBACK DRAWERBOTTOM TRAYSIDE TRAYFRONT TRAYBACK TRAYBOTTOM TRAYFACE DRAWERPARTITION DRAWERDIVIDER'.split(' ').forEach(k=>GRP[k]='dbox');
+const grpOf=t=>/^EDGEBAND/.test(t)?'edge':GRP[t]||'';
+const CAT={'1':'doors','2':'dbox','3':'case','4':'top','5':'edge'};
+const WOOD=/\b(oak|walnut|maple|cherry|ash|birch|hickory|alder|teak|cedar|pine|sapele|mahogany|rift|quartersawn|plain ?sawn|veneer|wood)\b/i;
+
+function rotAx(v,ax,deg){const q=deg*Math.PI/180,c=Math.cos(q),s=Math.sin(q),x=v[0],y=v[1],z=v[2];
+ if(ax==='X')return[x,y*c-z*s,y*s+z*c];if(ax==='Y')return[x*c+z*s,y,-x*s+z*c];return[x*c-y*s,x*s+y*c,z];}
+function bboxOf(c,T){
+ const Lq=nm(at(c,'L')),W=nm(at(c,'W')),a=[at(c,'A1'),at(c,'A2'),at(c,'A3')].map(nm),r=(at(c,'R1')+at(c,'R2')+at(c,'R3'))||'XYZ',p=[at(c,'X'),at(c,'Y'),at(c,'Z')].map(nm);
+ const b={x0:1e9,y0:1e9,z0:1e9,x1:-1e9,y1:-1e9,z1:-1e9};
+ [0,Lq].forEach(x=>[0,W].forEach(y=>[0,T].forEach(z=>{let v=[x,y,z];for(let k=0;k<3;k++)v=rotAx(v,r[k],a[k]);
+  const q=[v[0]+p[0],v[1]+p[1],v[2]+p[2]];b.x0=Math.min(b.x0,q[0]);b.x1=Math.max(b.x1,q[0]);b.y0=Math.min(b.y0,q[1]);b.y1=Math.max(b.y1,q[1]);b.z0=Math.min(b.z0,q[2]);b.z1=Math.max(b.z1,q[2]);})));
+ return b;}
+function frontsOf(p){
+ const fr=[],pu=[];const parts=kids(kid(p,'CabProdParts'),'CabProdPart');
+ parts.forEach(c=>{const ty=at(c,'Type'),name=at(c,'Name');if(at(c,'Quan')==='0')return;
+  const k=ty==='Drawer'?'r':(ty==='Door'||(ty==='SPECIAL'&&/door/i.test(name)))?'d':ty==='FinExterior'?'p':'';if(!k)return;
+  const b=bboxOf(c,19.05);if(b.x1-b.x0<40||b.z1-b.z0<40||b.y0>40)return;
+  fr.push({x:r1(b.x0),z:r1(b.z0),w:r1(b.x1-b.x0),h:r1(b.z1-b.z0),k,hg:'',y:r1(b.y0)});});
+ const fp=[],pn=[];
+ parts.forEach(c=>{const ty=at(c,'Type');if(!/^(DoorFrame|DoorPanel|DrawerFrame|DrawerPanel)$/.test(ty))return;const b=bboxOf(c,19.05);if(b.y0>40)return;(/Panel$/.test(ty)?pn:fp).push({b,dr:/^Drawer/.test(ty)});});
+ pn.forEach(q=>{const u=Object.assign({},q.b),e=5;fp.forEach(f=>{const b=f.b;if(b.x1>q.b.x0-e&&b.x0<q.b.x1+e&&b.z1>q.b.z0-e&&b.z0<q.b.z1+e){u.x0=Math.min(u.x0,b.x0);u.x1=Math.max(u.x1,b.x1);u.z0=Math.min(u.z0,b.z0);u.z1=Math.max(u.z1,b.z1);}});
+  if(u.x1-u.x0>=40&&u.z1-u.z0>=40)fr.push({x:r1(u.x0),z:r1(u.z0),w:r1(u.x1-u.x0),h:r1(u.z1-u.z0),k:q.dr?'r':'d',hg:'',pi:[r1(q.b.x0),r1(q.b.z0),r1(q.b.x1-q.b.x0),r1(q.b.z1-q.b.z0)]});});
+ kids(kid(p,'ProductDoors'),'ProductDoor').forEach(d=>{const x=nm(at(d,'X'));const f=fr.find(f=>f.k==='d'&&!f.hg&&Math.abs(f.x-x)<8);if(f)f.hg=(at(d,'HingeEdge')||'').charAt(0);});
+ parts.forEach(c=>{if(!/^metal$/i.test(at(c,'Type'))||!/pull|knob/i.test(at(c,'Name')))return;
+  const X=nm(at(c,'X')),Z=nm(at(c,'Z')),Lq=Math.max(nm(at(c,'L')),nm(at(c,'W')))||128;
+  const f=fr.find(f=>X>=f.x-8&&X<=f.x+f.w+8&&Z>=f.z-8&&Z<=f.z+f.h+8);if(!f)return;
+  pu.push([r1(X),r1(Z),f.k==='r'?'h':'v',r1(Lq)]);});
+ return{fr,pu};}
+function overridesOf(p){
+ const col={front:{},ext:{},int:{},dbox:{},edge:{}},mat={front:{},ext:{},int:{},dbox:{},edge:{}},tmpl={};
+ Array.from(p.getElementsByTagName('MaterialTemplateSelection')).forEach(m=>{
+  const cat=CAT[at(m.parentElement,'CategoryId')];
+  if(at(m,'RootTemplateId')!=='-1'&&at(m,'MissingTemplateName')&&cat)tmpl[cat]=at(m,'MissingTemplateName');
+  kids(m).forEach(o=>{const g=grpOf(at(o,'PartType'));if(!g)return;
+   if(/^Texture/.test(o.tagName))bump(col[g],at(o,'MissingTextureName').trim());
+   else if(/^MatId/.test(o.tagName))bump(mat[g],at(o,'MissingMaterialName').trim());});});
+ const C={},M={};for(const g in col){C[g]=mode(col[g]);M[g]=mode(mat[g]);}
+ return{col:C,mat:M,tmpl};}
+const kindOfPl=pl=>pl.e>=300?'u':pl.H>=1300?'t':'b';
+/* panel thickness from material template names, e.g. "3-4 Plywood (1-4 Back)" */
+function fracIn(s,re){const m=String(s||'').match(re||/(?:^|[^\d])(\d+)-(\d+)(?!\d)/);return m&&+m[2]>+m[1]?(+m[1]/+m[2])*MM:0;}
+function thickTable(mats){const cs=fracIn(mats.case)||19.05;
+ return{case:cs,back:fracIn(mats.case,/\((\d+)-(\d+)\s*Back\)/i)||cs,door:fracIn(mats.doors)||19.05,box:fracIn(mats.dbox)||12.7,boxBot:fracIn(mats.dbox,/\((\d+)-(\d+)\s*Bottom\)/i)||6.35};}
+function thickOf(ty,K){const t=ty.toUpperCase();
+ if(/^(DRAWER|TRAY)(SIDE|FRONT|BACK)$/.test(t))return K.box;if(/^(DRAWER|TRAY)BOTTOM$/.test(t))return K.boxBot;
+ if(/^(UBACK|FBACK)$/.test(t))return K.back;if(t==='GLASS'||t==='DOORPANEL'||t==='DRAWERPANEL')return 6.35;
+ if(/^(DOOR|DRAWER|DOORFRAME|DRAWERFRAME|FINEXTERIOR|PANELIZEDEND)$/.test(t))return K.door;return K.case;}
+/* parts that are not cabinetry: lights, appliances, and accessory kits Mozaik leaves unplaced at the product origin */
+const NOT_WOOD=/\b(led|light|strip ?light|oven|microwave|refrigerator|fridge|dishwasher|range|cooktop|hood insert|sink|faucet|appliance)\b/i;
+const qtyOf=c=>{const q=at(c,'Quan');return q===''?1:nm(q);}; // Quan="0" means the part is switched off in Mozaik
+function strayPart(c){const ty=at(c,'Type'),name=at(c,'Name');
+ if(qtyOf(c)<=0)return true;
+ if(/^special$/i.test(ty)&&NOT_WOOD.test(name))return true;
+ if(/trash|waste|recycl/i.test(name)&&!nm(at(c,'X'))&&!nm(at(c,'Y'))&&!nm(at(c,'Z'))&&!nm(at(c,'A1'))&&!nm(at(c,'A2'))&&!nm(at(c,'A3')))return true;
+ return false;}
+function geoParts(parts,K){const out=[];
+ parts.forEach(c=>{const ty=at(c,'Type');if(/^metal$/i.test(ty)||strayPart(c))return;const L=nm(at(c,'L')),W=nm(at(c,'W'));if(!L||!W)return;
+  const o={t:ty,n:(at(c,'Name')||ty).trim(),L:r1(L),W:r1(W),T:r1(thickOf(ty,K)),p:[at(c,'X'),at(c,'Y'),at(c,'Z')].map(v=>r1(nm(v))),a:[at(c,'A1'),at(c,'A2'),at(c,'A3')].map(nm),r:(at(c,'R1')+at(c,'R2')+at(c,'R3'))||'XYZ'};
+  const pts=kids(kid(c,'PartShapeXml'),'ShapePoint').map(sp=>[r1(nm(at(sp,'X'))),r1(nm(at(sp,'Y')))]);
+  const rect=pts.length===4&&pts.every(q=>(Math.abs(q[0])<1||Math.abs(q[0]-L)<1)&&(Math.abs(q[1])<1||Math.abs(q[1]-W)<1));
+  if(pts.length>=3&&!rect)o.s=pts;out.push(o);});
+ return out;}
+function parseProduct(p,set,K){
+ const parts=kids(kid(p,'CabProdParts'),'CabProdPart');
+ const numbered=at(p,'Numbered')==='True',no=at(p,'CabNo');
+ const it={id:'p'+at(p,'UniqueID'),num:numbered,no:+no||0,label:(numbered?'':'N')+no,name:at(p,'ProdName').trim(),desc:at(p,'ProductDesc').trim(),
+  W:r1(nm(at(p,'Width'))),H:r1(nm(at(p,'Height'))),D:r1(nm(at(p,'Depth'))),qty:nm(at(p,'Count'))||1,notes:at(p,'Notes').trim(),finInt:at(p,'FinInt')==='True',
+  doors:[],dfs:[],nDrw:0,nFalse:0,hinges:{},slides:{},pulls:0,adj:0,fix:0,lights:0,ro:0,rod:0,boxes:[],guides:[],nParts:parts.length};
+ kids(kid(p,'ProductDoors'),'ProductDoor').forEach(d=>{
+  const hc=at(d,'HingeCenterLines');const n=hc?hc.split('#').filter(Boolean).length:0;const st=at(d,'DoorStyle');
+  if(at(d,'IsDrawerFront')==='True'){it.dfs.push(st);return;}
+  const info=at(d,'HingeInfoName'),cfg=at(d,'HingeConfigurationName');
+  const key=n?((info||'Hinge')+(cfg?' / '+cfg:'')):'';
+  it.doors.push({st,hg:(at(d,'HingeEdge')||'').charAt(0),n,key});if(key)bump(it.hinges,key,n);});
+ kids(kid(p,'ProductDrawers'),'ProductDrawer').forEach(d=>{
+  const g=at(d,'GuideName'),D=nm(at(d,'D'));
+  if(g||nm(at(d,'W'))>0){it.nDrw++;if(at(d,'DrawerBoxStyle'))it.boxes.push(at(d,'DrawerBoxStyle'));if(g){it.guides.push(g);bump(it.slides,g+'|'+Math.round(D/MM));}}
+  else it.nFalse++;});
+ it.ro=kids(kid(p,'ProductRolloutShelves')).length;
+ parts.forEach(c=>{const ty=at(c,'Type'),name=at(c,'Name'),q=qtyOf(c);if(q<=0)return;
+  if(ty==='AdjustableShelf')it.adj+=q;else if(ty==='FixedShelf')it.fix+=q;
+  else if(/^metal$/i.test(ty)){if(/pull|knob/i.test(name))it.pulls+=q;else if(/light/i.test(name))it.lights+=q;}
+  if(/rod/i.test(ty)||/closet ?rod/i.test(name))it.rod+=q;
+  if(ty==='Toe'&&(!it.toeH||/front/i.test(name)))it.toeH=r1(Math.min(nm(at(c,'W')),nm(at(c,'L'))));});
+ it.ov={door:at(p,'DoorOR'),df:at(p,'TopDrwOR')||at(p,'MidDrwOR')||at(p,'BotDrwOR'),pull:at(p,'DrwPullOR')||at(p,'DoorPullOR'),hinge:at(p,'HingeOR'),guide:at(p,'GuideOR'),pins:at(p,'ShelfPinsOR'),leg:at(p,'LegOR')};
+ const o=overridesOf(p);it.col=o.col;it.mat=o.mat;it.tmpl=o.tmpl;
+ const wn=v=>parseInt(String(v).split('_')[0],10)||0,ws=v=>parseInt(String(v).split('_')[1],10)===2?2:1;
+ it.g=geoParts(parts,K);
+ if(at(p,'Wall')){const F=frontsOf(p);it.fy=F.fr.length?Math.min(...F.fr.map(f=>f.y)):0;it.pl={w:wn(at(p,'Wall')),s:ws(at(p,'Wall')),x:r1(nm(at(p,'X'))),W:it.W,D:it.D,H:it.H,e:r1(nm(at(p,'Elev'))),o:r1(nm(at(p,'Outset'))),f:F.fr,pu:F.pu};}
+ const pt=kid(p,'ProductType');const sub=at(pt,'SubType');
+ it.kind=it.pl?kindOfPl(it.pl):sub==='2'?'u':sub==='3'?'t':'b';
+ it.pullName=it.ov.pull||(it.nDrw&&!it.doors.length?set.drwPull:it.kind==='u'?set.wallPull:set.basePull);
+ return it;}
+function parseRoom(text,idx){
+ const r=xmlRoot(text);if(r.tagName!=='Room')throw new Error('read');
+ const rs=kid(r,'RoomSet');const A=k=>at(rs,k).trim();
+ const set={lib:A('AutofillLib'),baseDoor:A('NonColumnBaseDoor'),wallDoor:A('NonColumnWallDoor'),topDrw:A('NonColumnTopDrawer'),box:A('DrawerBox'),guide:A('DrawerGuide'),soft:A('DrawerGuideSlowCloseOn')==='True',
+  roTray:A('ROTray'),roGuide:A('ROTrayGuide'),drwPull:A('DrwPulls'),basePull:A('BasePulls'),wallPull:A('WallPulls'),baseHinge:A('BaseHinges'),wallHinge:A('WallHinges'),rod:A('ClosetRod'),pins:A('ShelfPins'),legs:A('Legs'),linear:A('LinearLights'),spot:A('SpotLights')};
+ const mats={};kids(rs,'BaseMatTempSel').forEach(b=>{const c=CAT[at(b,'CategoryId')];const m=kid(b,'MaterialTemplateSelection');if(c&&m)mats[c]=at(m,'MissingTemplateName').trim();});
+ const wn=v=>parseInt(String(v).split('_')[0],10)||0,ws=v=>parseInt(String(v).split('_')[1],10)===2?2:1;
+ // products, appliances and tops point at walls by their position in this list (1-based), not by WallNumber
+ const LY={walls:kids(kid(r,'Walls'),'Wall').map((w,ix)=>({n:ix+1,num:nm(at(w,'WallNumber')),x:r1(nm(at(w,'PosX'))),y:r1(nm(at(w,'PosY'))),a:nm(at(w,'Ang')),L:r1(nm(at(w,'Len'))),T:nm(at(w,'Thickness'))||152.4,h:nm(at(w,'Height')),inv:at(w,'Invisible')==='True'})),ap:[],fx:[],tops:[]};
+ kids(kid(r,'Appls'),'Appl').forEach(a=>{const W=nm(at(a,'Width')),e=nm(at(a,'Elev')),ty=nm(at(a,'Type')),st=nm(at(a,'ApplSubType'));if(W<200||e>=2000)return;
+  if(!((ty>=1&&ty<20&&!(ty===5&&st===9))||(ty===20&&st===0)))return;
+  LY.ap.push({n:at(a,'Name'),w:wn(at(a,'Wall')),s:ws(at(a,'Wall')),x:r1(nm(at(a,'X'))),W:r1(W),D:r1(nm(at(a,'Depth'))),H:r1(nm(at(a,'Height'))),e:r1(e),o:r1(nm(at(a,'Outset')))});});
+ kids(kid(r,'Fixts'),'Fixt').forEach(a=>{LY.fx.push({n:at(a,'Name'),w:wn(at(a,'Wall')),x:r1(nm(at(a,'X'))),W:r1(nm(at(a,'Width'))),H:r1(nm(at(a,'Height'))),e:r1(nm(at(a,'Elev')))});});
+ LY.tops=kids(kid(r,'Tops'),'Top').map(tp=>({w:wn(at(tp,'Wall')),s:ws(at(tp,'Wall')),x:r1(nm(at(tp,'XPos'))),L:r1(nm(at(tp,'Length'))),D:r1(nm(at(tp,'D'))),e:r1(nm(at(tp,'Elev'))),t:r1(nm(at(tp,'Thick'))||31.75)}));
+ const items=[];
+ const K=thickTable(mats);
+ kids(kid(r,'Products'),'Product').forEach(p=>{const it=parseProduct(p,set,K);if(!it.nParts&&!it.pl)return;items.push(it);});
+ items.sort((a,b)=>(a.num?0:1)-(b.num?0:1)||a.no-b.no);
+ const toes=kids(kid(r,'ToeSkins')).map((ts,i)=>({label:'TS'+(i+1),L:nm(at(ts,'L')),W:nm(at(ts,'W'))})).filter(t=>t.L>0);
+ const room={id:'r'+(at(r,'UniqueID')||idx),idx,name:at(r,'Name')||('Room '+idx),set,mats,layout:LY,items,toes};
+ room.sum=summarize(room);
+ return room;}
+function summarize(room){
+ const s=room.set,its=room.items,cabs=its.filter(i=>i.num);const src=cabs.length?cabs:its;
+ const col={front:{},ext:{},int:{}},mat={ext:{},int:{}};
+ // '-' = no override on that cabinet (it uses the template default, which the job file does not name)
+ src.forEach(i=>{for(const g in col)bump(col[g],i.col[g]||'-');bump(mat.ext,i.mat.ext);bump(mat.int,i.mat.int);});
+ const real=o=>{const c=Object.assign({},o);delete c['-'];return c;};
+ const primary=mode(col.front);const front=primary==='-'?'':primary,int=mode(real(col.int));
+ const isW=c=>c&&WOOD.test(c);
+ const fronts=Object.keys(real(col.front)).concat(Object.keys(real(col.ext)));
+ const paint=uniq(fronts.filter(c=>!isW(c))).join(' · '),wood=uniq(fronts.filter(isW)).join(' · ');
+ const doors=its.flatMap(i=>i.doors.filter(d=>d.n>0));
+ const nDrw=its.reduce((a,i)=>a+i.nDrw,0),nFalse=its.reduce((a,i)=>a+i.nFalse,0);
+ const hingeKeys=uniq(its.flatMap(i=>Object.keys(i.hinges)));
+ const ov=hingeKeys.map(k=>/inset/i.test(k)?'Inset':/full overlay/i.test(k)?'Full overlay':/half/i.test(k)?'Half overlay':/partial/i.test(k)?'Partial overlay':'');
+ const cnt=k=>its.reduce((a,i)=>a+(i[k]||0),0);
+ const toeH={};its.forEach(i=>{if(i.toeH>20&&i.toeH<250)bump(toeH,String(Math.round(i.toeH/MM*16)/16));});
+ const th=mode(toeH);
+ const tops=room.layout.tops;
+ return{
+  cons:s.lib,case:room.mats.case||'',int:int&&int!==front?int:'',ext:mode(mat.ext)||'',edge:room.mats.edge||'',toe:th?frac(+th*MM)+'" high':'',
+  door:uniq(doors.map(d=>d.st)).join(' · ')||(doors.length?s.baseDoor:''),
+  df:uniq(its.flatMap(i=>i.dfs)).join(' · ')||((nDrw||nFalse)?s.topDrw:''),
+  doorMat:room.mats.doors||'',overlay:uniq(ov).join(' · '),
+  doorPrimary:(()=>{const c={};doors.forEach(d=>bump(c,d.st));return mode(c);})(),
+  finType:[paint?'Paint':'',wood?'Stain':''].filter(Boolean).join(' · '),paint,wood,primary:front,
+  dbox:nDrw?[uniq(its.flatMap(i=>i.boxes)).join(' · ')||s.box,room.mats.dbox].filter(Boolean).join(' · '):'',
+  glide:uniq(its.flatMap(i=>i.guides)).join(' · ')+(nDrw&&s.soft?' · soft-close':''),
+  ro:cnt('ro')?[s.roTray,s.roGuide].filter(Boolean).join(' · '):'',
+  hinge:hingeKeys.join(' · '),pull:uniq(its.filter(i=>i.pulls>0).map(i=>i.pullName)).join(' · '),pins:cnt('adj')?s.pins:'',
+  rod:cnt('rod')?s.rod:'',light:cnt('lights')?cnt('lights')+' × '+(s.linear||'linear light'):'',
+  top:tops.length?[room.mats.top,fi(tops[0].t)+' thick'].filter(Boolean).join(' · '):'',
+  n:{doors:doors.length,drw:nDrw,hinges:hingeKeys.length,pulls:cnt('pulls'),ro:cnt('ro'),light:cnt('lights'),rod:cnt('rod'),tops:tops.length,adj:cnt('adj')}};
+}
+
+/* ---------------- spec fields ---------------- */
+const PH=/^(pull|knob)\s*\d*$|^default\b|^wire pull$/i;
+const FIELDS=[
+ {sec:'Construction'},
+ {k:'cons',l:'Cabinet construction',auto:m=>/face ?frame/i.test(m)?'Face frame':/closet/i.test(m)?'Closet system':/frameless/i.test(m)?'Frameless (European)':m},
+ {k:'case',l:'Case & interior material'},
+ {k:'int',l:'Interior finish'},
+ {k:'ext',l:'Exterior material (finished ends, panels)'},
+ {k:'edge',l:'Edge banding'},
+ {k:'toe',l:'Toe kick'},
+ {sec:'Doors & drawer fronts'},
+ {k:'door',l:'Door style',show:s=>s.n.doors>0},
+ {k:'df',l:'Drawer front style',show:s=>!!s.df},
+ {k:'doorMat',l:'Door & drawer front material'},
+ {k:'overlay',l:'Overlay',show:s=>s.n.doors>0},
+ {sec:'Finish'},
+ {k:'finType',l:'Finish type',job:1},
+ {k:'paint',l:'Paint color (brand · name · code)',job:1},
+ {k:'wood',l:'Stain color (brand · name)',job:1},
+ {k:'sheen',l:'Sheen'},
+ {sec:'Drawers'},
+ {k:'dbox',l:'Drawer box',show:s=>s.n.drw>0},
+ {k:'glide',l:'Drawer glides',show:s=>s.n.drw>0},
+ {k:'ro',l:'Roll-out trays',show:s=>s.n.ro>0},
+ {sec:'Hardware'},
+ {k:'hinge',l:'Hinges',show:s=>s.n.hinges>0},
+ {k:'pull',l:'Pulls & knobs (model · finish · size)',show:s=>s.n.pulls>0},
+ {k:'pins',l:'Shelf pins',show:s=>s.n.adj>0},
+ {k:'rod',l:'Closet rod',show:s=>s.n.rod>0},
+ {k:'light',l:'Lighting',show:s=>s.n.light>0},
+ {sec:'Other'},
+ {k:'top',l:'Countertop',show:s=>s.n.tops>0},
+ {k:'other',l:'Other notes'}
+];
+const FK={};FIELDS.forEach(f=>{if(f.k)FK[f.k]=f;});
+const shown=(r,f)=>!f.show||f.show(r.sum);
+const mozOf=(r,f)=>String(r.sum[f.k]||'').trim();
+function valOf(r,f){
+ const m=mozOf(r,f),ek=r.id+'|'+f.k;
+ if(Object.prototype.hasOwnProperty.call(S.edits,ek))return S.edits[ek];
+ if(m&&STD.map[f.k+'|'+m]!=null)return STD.map[f.k+'|'+m];
+ if(!m&&!f.job&&STD.std[f.k]!=null)return STD.std[f.k];
+ if(!m||PH.test(m))return'';
+ return f.auto?f.auto(m):m;}
+function setVal(r,f,v){
+ const m=mozOf(r,f);S.edits[r.id+'|'+f.k]=v;
+ if(m)STD.map[f.k+'|'+m]=v;else if(!f.job)STD.std[f.k]=v;
+ saveStd();saveJob();}
+/* spec for one Mozaik item name (hardware schedule) */
+function specFor(k,item){const v=STD.map[k+'|'+item];if(v!=null)return v;
+ const f=FK[k];if(!f)return PH.test(item)?'':item;
+ const r=selRooms().find(r=>mozOf(r,f).split(' · ').includes(item));if(!r)return PH.test(item)?'':item;
+ const val=valOf(r,f);if(val===mozOf(r,f)||(f.auto&&val===f.auto(mozOf(r,f))))return PH.test(item)?'':item;
+ return val;}
+
+/* ---------------- state ---------------- */
+const S={job:null,zip:null,renders:[],renderUrl:null,renderKey:'',info:{},edits:{},sel:{},sample:false,building:false,roomRenders:{}};
+if(!STD.swatch)STD.swatch={};
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+async function loadRoomRenders(){
+ Object.values(S.roomRenders).flat().forEach(u=>{if(u&&u.startsWith('blob:'))URL.revokeObjectURL(u);});S.roomRenders={};
+ if(!S.zip||!S.job)return;
+ for(const r of S.job.rooms){
+  const re=new RegExp('#\\d+ '+escRe(r.name)+'( |/|$)','i');
+  const hits=S.renders.filter(x=>/Renders\//i.test(x.key)&&re.test(x.key));const pick=[],names=new Set();
+  for(const h of hits){const fn=h.key.split('/').pop();if(names.has(fn))continue;names.add(fn);pick.push(h);if(pick.length>=2)break;}
+  const urls=[];for(const h of pick){const e=S.zip.file(h.key);if(e)urls.push(URL.createObjectURL(await e.async('blob')));}
+  if(urls.length)S.roomRenders[r.id]=urls;}
+ scheduleBuild(100);}
+function renderSwatches(){
+ const box=$('swatches');if(!box)return;const list=collectSwatches(selRooms());
+ if(!list.length){box.innerHTML='<p class="note">Selecione um job para ver as cores.</p>';return;}
+ box.innerHTML=list.map(s=>`<label class="swr"><input type="color" data-sw="${esc(s.n)}" value="${swatch(s.n)}" aria-label="${esc('Cor para '+s.n)}"><span><b>${esc(s.n)}</b><small>${esc(s.uses.slice(0,3).join(' · '))}${s.uses.length>3?' …':''}</small></span></label>`).join('');}
+const INFO_KEYS=['project','client','address','jobNo','date','designer','rev','revNote','paper'];
+const jobKey=()=>'hw-sd-job-v1:'+(S.job?S.job.name:'');
+let jobTimer=0;function saveJob(){clearTimeout(jobTimer);jobTimer=setTimeout(()=>save(jobKey(),{info:S.info,edits:S.edits,sel:S.sel,renderKey:S.renderKey}),300);}
+const selRooms=()=>S.job?S.job.rooms.filter(r=>S.sel[r.id]):[];
+function status(t){$('status').textContent=t||'';}
+
+function setJob(job,zip,renders,isSample){
+ S.job=job;S.zip=zip;S.renders=renders||[];S.sample=!!isSample;
+ if(S.renderUrl&&S.renderUrl.startsWith('blob:')&&S.renderKey!=='upload')URL.revokeObjectURL(S.renderUrl);
+ S.renderUrl=null;S.renderKey='';
+ const st=load(jobKey(),null);
+ const today=new Date().toISOString().slice(0,10);
+ S.info=Object.assign({project:job.name,client:job.client||'',address:job.address||'',jobNo:'',date:today,designer:STD.designer||'',rev:'Rev 0',revNote:'Issued for approval',paper:'tabloid'},st&&st.info||{});
+ S.edits=st&&st.edits||{};
+ S.sel={};job.rooms.forEach(r=>{S.sel[r.id]=st&&st.sel&&r.id in st.sel?st.sel[r.id]:r.items.some(i=>i.num);});
+ INFO_KEYS.forEach(k=>{const el=$('i_'+k);if(el)el.value=S.info[k]||'';});
+ renderJobInfo();renderRenderSelect();
+ const want=st&&st.renderKey;if(want&&S.renders.some(x=>x.key===want))pickRender(want);else if(S.renders.length)pickRender(S.renders[0].key);
+ renderSpec();renderSwatches();scheduleBuild(0);loadRoomRenders();}
+
+async function handleFiles(files){
+ const err=$('jobErr');if(err)err.textContent='';
+ status('Lendo o job do Mozaik…');
+ try{
+  const texts=[];let name='',jobdat='',zip=null,renders=[];const opts=[];
+  for(const f of files){
+   if(/\.zip$/i.test(f.name)){
+    if(!window.JSZip)throw new Error('O leitor de .zip não carregou. Recarregue a página.');
+    try{zip=await window.JSZip.loadAsync(f);}catch(e){throw new Error('Não consegui abrir esse .zip. Confira se é a pasta do job compactada.');}
+    const ents=Object.values(zip.files).filter(e=>!e.dir&&/(^|\/)Room\d+\.des$/i.test(e.name));
+    if(!ents.length)continue;
+    const depth=e=>e.name.split('/').length;const min=Math.min(...ents.map(depth));
+    const top=ents.filter(e=>depth(e)===min);const base=top[0].name.slice(0,top[0].name.lastIndexOf('/')+1);
+    const segs=top[0].name.split('/');name=segs.length>1?segs[segs.length-2]:f.name.replace(/\.zip$/i,'');
+    for(const e of top)texts.push({name:e.name,text:await e.async('string')});
+    const jd=zip.file(base+'JobDat.dat');if(jd)jobdat=await jd.async('string');
+    for(const e of Object.values(zip.files).filter(e=>!e.dir&&e.name.startsWith(base)&&/\.opt$/i.test(e.name)&&e.name.slice(base.length).indexOf('/')<0)){try{const m=parseOpt(await e.async('string'));if(m)opts.push(m);}catch(err){}}
+    renders=Object.values(zip.files).filter(e=>!e.dir&&e.name.startsWith(base)&&/^(Renders|2D3DViewerPictures)\//i.test(e.name.slice(base.length))&&/\.(png|jpe?g)$/i.test(e.name))
+     .map(e=>({key:e.name,label:e.name.slice(base.length).replace(/^Renders\//i,'').replace(/^2D3DViewerPictures\//i,'3D viewer / ').replace(/ T(\d\d)-(\d\d)-(\d\d)-\d+/,' $1:$2').replace(/\/(.*)$/,' · $1')}))
+     .sort((a,b)=>b.key.localeCompare(a.key));
+   }else if(/\.des$/i.test(f.name)){texts.push({name:f.webkitRelativePath||f.name,text:await f.text()});}
+   else if(/jobdat\.dat$/i.test(f.name)){jobdat=await f.text();}
+   else if(/\.opt$/i.test(f.name)){try{const m=parseOpt(await f.text());if(m)opts.push(m);}catch(e){}}
+  }
+  if(!texts.length)throw new Error('Não encontrei arquivos Room*.des. Compacte a pasta do job do Mozaik (a que tem Room1.des, Room2.des…).');
+  if(!name)name=(texts[0].name.split(/[\\/]/).slice(-2,-1)[0])||'Mozaik job';
+  const rn=x=>+((x.name.match(/Room(\d+)\.des$/i)||[])[1]||0);texts.sort((a,b)=>rn(a)-rn(b));
+  const rooms=[];const bad=[];
+  texts.forEach(x=>{try{const r=parseRoom(x.text,rn(x));if(r.items.length)rooms.push(r);}catch(e){console.error(e);bad.push(x.name);}});
+  if(!rooms.length)throw new Error('Os cômodos desse job não têm gabinetes.');
+  let client='',address='';
+  if(jobdat){try{const j=xmlRoot(jobdat);client=(kid(j,'CustomerName')||{}).textContent||'';address=[kid(j,'Address1'),kid(j,'Address2')].map(e=>e&&e.textContent||'').filter(Boolean).join(', ');}catch(e){}}
+  S.nc=[];renderNcList();setJob({name,client:client.trim(),address:address.trim(),rooms,opts},zip,renders,false);
+  status(bad.length?`Job carregado. ${bad.length} arquivo(s) não puderam ser lidos.`:'Job carregado.');
+ }catch(e){status('');const el=$('jobErr');if(el)el.textContent=e.message||'Não consegui ler esse arquivo.';}
+}
+
+/* ---------------- setup UI ---------------- */
+function renderJobInfo(){
+ const j=S.job;const box=$('jobInfo');
+ if(!j){box.innerHTML='<p class="err" id="jobErr"></p>';return;}
+ const rows=j.rooms.map(r=>{const c=r.items.filter(i=>i.num).length,p=r.items.length-c;
+  return `<label class="room"><input type="checkbox" data-room="${esc(r.id)}" ${S.sel[r.id]?'checked':''}><span><b>${esc(r.name)}</b><small>${c} gabinetes · ${p} peças avulsas</small></span><span class="chip">Room${r.idx}</span></label>`;}).join('');
+ box.innerHTML=`${S.sample?'<p class="note"><span class="chip">Exemplo</span> Mostrando o job "office show room" que você enviou. Selecione outro .zip para trocar.</p>':''}
+  <p><b>${esc(j.name)}</b>${j.client?' · '+esc(j.client):''}</p>
+  <p class="note">Marque os cômodos que entram no shop drawing.</p>
+  <div class="rooms">${rows}</div><p class="err" id="jobErr"></p>`;}
+function renderRenderSelect(){
+ const s=$('i_render');const opts=['<option value="">Sem imagem</option>'];
+ if(S.renderKey==='upload')opts.push('<option value="upload">Imagem enviada</option>');
+ S.renders.forEach(r=>opts.push(`<option value="${esc(r.key)}">${esc(r.label)}</option>`));
+ s.innerHTML=opts.join('');s.value=S.renderKey||'';}
+async function pickRender(key){
+ if(key==='upload')return;
+ if(S.renderUrl&&S.renderKey!=='upload'&&S.renderUrl.startsWith('blob:'))URL.revokeObjectURL(S.renderUrl);
+ S.renderKey=key;S.renderUrl=null;
+ if(key&&S.zip){const e=S.zip.file(key);if(e){status('Carregando imagem…');const b=await e.async('blob');S.renderUrl=URL.createObjectURL(b);if($('status').textContent==='Carregando imagem…')status('');}}
+ $('i_render').value=key||'';saveJob();scheduleBuild();}
+
+function renderCompany(){
+ $('c_name').value=STD.company.name||'';$('c_web').value=STD.company.web||'';$('c_phone').value=STD.company.phone||'';$('c_notes').value=STD.notes||'';
+ $('logoPrev').style.backgroundImage=STD.logo?`url(${STD.logo})`:'';$('logoClear').hidden=!STD.logo;}
+
+/* ---------------- spec editor ---------------- */
+function renderSpec(){
+ const box=$('specEditor');const rooms=selRooms();
+ if(!rooms.length){box.innerHTML='<div class="empty">Selecione um job e marque pelo menos um cômodo.</div>';return;}
+ let h=`<div class="spec-wrap"><table class="spec"><thead><tr><th>Item</th>${rooms.map(r=>`<th>${esc(r.name)}</th>`).join('')}</tr></thead><tbody>`;
+ let sec='';
+ FIELDS.forEach(f=>{
+  if(f.sec){sec=f.sec;return;}
+  if(!rooms.some(r=>shown(r,f)))return;
+  if(sec){h+=`<tr class="sec"><td colspan="${rooms.length+1}">${esc(sec)}</td></tr>`;sec='';}
+  h+=`<tr><td class="lab">${esc(f.l)}${rooms.length>1?`<br><button type="button" class="btn small" data-all="${f.k}" title="Copia o valor do primeiro cômodo para os outros">Igual em todos</button>`:''}</td>`;
+  rooms.forEach(r=>{
+   if(!shown(r,f)){h+='<td class="cell na">não se aplica</td>';return;}
+   const m=mozOf(r,f),v=valOf(r,f);
+   h+=`<td class="cell"><input type="text" data-r="${esc(r.id)}" data-f="${f.k}" value="${esc(v)}" class="${v.trim()?'':'tbd'}" aria-label="${esc(f.l+' – '+r.name)}"><small>Mozaik: ${m?esc(m):'—'}</small></td>`;});
+  h+='</tr>';});
+ h+='</tbody></table></div>';box.innerHTML=h;}
+
+/* ---------------- drawing helpers (SVG with inline attributes so the PDF raster keeps them) ---------------- */
+const SCALES=[[3,'3" = 1\'-0"'],[1.5,'1-1/2" = 1\'-0"'],[1,'1" = 1\'-0"'],[0.75,'3/4" = 1\'-0"'],[0.5,'1/2" = 1\'-0"'],[0.375,'3/8" = 1\'-0"'],[0.25,'1/4" = 1\'-0"'],[0.1875,'3/16" = 1\'-0"'],[0.125,'1/8" = 1\'-0"'],[0.09375,'3/32" = 1\'-0"'],[0.0625,'1/16" = 1\'-0"']];
+function pickScale(wMm,hMm,availW,availH,padW,padH){
+ for(const [s,lab] of SCALES){const ppm=s*96/304.8;if(wMm*ppm+padW<=availW&&hMm*ppm+padH<=availH)return{ppm,lab};}
+ const ppm=Math.min((availW-padW)/wMm,(availH-padH)/hMm);return{ppm:Math.max(ppm,0.01),lab:'NTS'};}
+const FONT='Archivo Narrow, Arial Narrow, Arial, Helvetica, sans-serif';
+const N=v=>(+v).toFixed(1);
+function svgOpen(w,h){return `<svg xmlns="http://www.w3.org/2000/svg" width="${N(w)}" height="${N(h)}" viewBox="0 0 ${N(w)} ${N(h)}" font-family="${FONT}">`;}
+function txt(x,y,s,o){o=o||{};return `<text x="${N(x)}" y="${N(y)}" font-size="${o.fs||10}" fill="${o.fill||'#141414'}" text-anchor="${o.a||'middle'}" dominant-baseline="${o.b||'central'}"${o.w?` font-weight="${o.w}"`:''}${o.rot!=null?` transform="rotate(${o.rot} ${N(x)} ${N(y)})"`:''}>${esc(s)}</text>`;}
+function dimH(a,b,y,lab,ext){ // horizontal dimension at y (px)
+ let d=`<line x1="${N(a)}" y1="${N(y)}" x2="${N(b)}" y2="${N(y)}" stroke="#141414" stroke-width="0.8"/>`;
+ [a,b].forEach(x=>{d+=`<line x1="${N(x-3.5)}" y1="${N(y+3.5)}" x2="${N(x+3.5)}" y2="${N(y-3.5)}" stroke="#141414" stroke-width="1.2"/>`;
+  if(ext!=null)d+=`<line x1="${N(x)}" y1="${N(ext)}" x2="${N(x)}" y2="${N(y+(y>ext?4:-4))}" stroke="#8a8a8a" stroke-width="0.5"/>`;});
+ if(b-a>=16)d+=txt((a+b)/2,y-6,lab,{fs:9.5});return d;}
+function dimV(x,ya,yb,lab,ext){ // vertical dimension at x (px), ya<yb
+ let d=`<line x1="${N(x)}" y1="${N(ya)}" x2="${N(x)}" y2="${N(yb)}" stroke="#141414" stroke-width="0.8"/>`;
+ [ya,yb].forEach(y=>{d+=`<line x1="${N(x-3.5)}" y1="${N(y+3.5)}" x2="${N(x+3.5)}" y2="${N(y-3.5)}" stroke="#141414" stroke-width="1.2"/>`;
+  if(ext!=null)d+=`<line x1="${N(ext)}" y1="${N(y)}" x2="${N(x+4)}" y2="${N(y)}" stroke="#8a8a8a" stroke-width="0.5"/>`;});
+ if(yb-ya>=16)d+=txt(x-6,(ya+yb)/2,lab,{fs:9.5,rot:-90});return d;}
+
+function wallSides(room){const m=new Map();room.items.forEach(i=>{if(!i.pl)return;const k=i.pl.w+'_'+(i.pl.s||1);if(!m.has(k))m.set(k,{w:i.pl.w,s:i.pl.s||1});});
+ return [...m.values()].sort((a,b)=>a.w-b.w||a.s-b.s);}
+function wallLabel(room,ws){const w=room.layout.walls.find(x=>x.n===ws.w);const isl=w&&w.h&&w.h<1500;
+ return isl?`Island – side ${ws.s}`:`Wall ${ws.w}${ws.s===2?' – side 2':''}`;}
+
+/* ---------------- orthographic views drawn from the Mozaik part geometry ---------------- */
+const SHOW_APPL=false; // appliances are left out of every view; panel-ready ones are cabinet products and still draw
+const FRAME_T=/^(DOORFRAME|DRAWERFRAME)$/,PANEL_T=/^(DOORPANEL|DRAWERPANEL)$/;
+const isIslandWall=w=>!!(w&&w.h&&w.h<1500);
+// product-local vertex -> wall-side frame (x along the wall as seen from that side, y = distance from the wall toward the viewer)
+const sideMap=p=>v=>[p.x+v[0],p.o+p.D-v[1],p.e+v[2]];
+// island frame: side 1 coordinates for both sides (side 2 is turned 180° around the island's wall)
+const islandMap=(p,w)=>{if((p.s||1)===1)return sideMap(p);const T=w.T||0,L=w.L;return v=>[L-(p.x+v[0]),-(T+p.o+p.D-v[1]),p.e+v[2]];};
+function itemMeshes(room,it,map){
+ const out=[],g=it.g||[];
+ // door and drawer-front frame pieces that touch are one front: no seam lines between rails and stiles
+ const fr=[];g.forEach((o,ix)=>{if(FRAME_T.test(o.t.toUpperCase()))fr.push(ix);});
+ const par={};fr.forEach(ix=>par[ix]=ix);const find=a=>{while(par[a]!==a){par[a]=par[par[a]];a=par[a];}return a;};
+ const bx={};fr.forEach(ix=>bx[ix]=partBox(g[ix]));
+ for(let a=0;a<fr.length;a++)for(let b=a+1;b<fr.length;b++){const A=bx[fr[a]],B=bx[fr[b]],e=1.2;
+  if(A.x0<=B.x1+e&&B.x0<=A.x1+e&&A.y0<=B.y1+e&&B.y0<=A.y1+e&&A.z0<=B.z1+e&&B.z0<=A.z1+e){const ra=find(fr[a]),rb=find(fr[b]);if(ra!==rb)par[ra]=rb;}}
+ g.forEach((o,ix)=>{const m=partLocalVerts(o);const T=o.t.toUpperCase();
+  out.push({verts:m.verts.map(map),faces:m.faces,hex:partHex(room,it,o.t),fit:true,t:T,gid:it.id+':'+(ix in par?'f'+find(ix):'p'+ix),it});});
+ if(!g.length&&it.pl){const p=it.pl,b=boxPrim(0,p.W,0,p.D,0,p.H,extHex(room,it));out.push({verts:b.verts.map(map),faces:b.faces,hex:b.hex,fit:true,t:'BOX',gid:it.id+':b',it});}
+ return out;}
+function pullMeshes(it,map){const out=[],p=it.pl;if(!p)return out;const fy=it.fy||0;
+ (p.pu||[]).forEach(q=>{const len=q[3],x=q[0],z=q[1],d=10,st=30;
+  // bar pull: a round-ish bar held off the front by two posts
+  const B=(x0,x1,y0,y1,z0,z1)=>{const b=boxPrim(x0,x1,y0,y1,z0,z1,'#2f3133');out.push({verts:b.verts.map(map),faces:b.faces,hex:b.hex,fit:true,t:'PULL',gid:it.id+':pull'+out.length,it});};
+  if(q[2]==='h'){B(x,x+len,fy-st,fy-st+d,z-d/2,z+d/2);[x+len*0.06,x+len*0.94-8].forEach(px=>B(px,px+8,fy-st+d,fy,z-4,z+4));}
+  else{B(x-d/2,x+d/2,fy-st,fy-st+d,z,z+len);[z+len*0.06,z+len*0.94-8].forEach(pz=>B(x-4,x+4,fy-st+d,fy,pz,pz+8));}});
+ return out;}
+const VIEWS={front:{n:[0,1,0],u:v=>v[0],w:v=>v[2],d:v=>v[1]},back:{n:[0,-1,0],u:v=>-v[0],w:v=>v[2],d:v=>-v[1]},
+ left:{n:[-1,0,0],u:v=>-v[1],w:v=>v[2],d:v=>-v[0]},right:{n:[1,0,0],u:v=>v[1],w:v=>v[2],d:v=>v[0]},top:{n:[0,0,1],u:v=>v[0],w:v=>v[1],d:v=>v[2]}};
+function newell(vs,pl){let nx=0,ny=0,nz=0;for(let q=0;q<pl.length;q++){const a=vs[pl[q]],b=vs[pl[(q+1)%pl.length]];nx+=(a[1]-b[1])*(a[2]+b[2]);ny+=(a[2]-b[2])*(a[0]+b[0]);nz+=(a[0]-b[0])*(a[1]+b[1]);}
+ const l=Math.hypot(nx,ny,nz)||1;return[nx/l,ny/l,nz/l];}
+function viewFaces(meshes,V){const out=[];
+ meshes.forEach(m=>{if(m.t==='PULL')return;m.faces.forEach(fc=>{const n=newell(m.verts,fc.poly);if(Math.abs(n[0]*V.n[0]+n[1]*V.n[1]+n[2]*V.n[2])<0.7)return;
+  const pts=fc.poly.map(i=>[V.u(m.verts[i]),V.w(m.verts[i])]);const d=fc.poly.reduce((a,i)=>a+V.d(m.verts[i]),0)/fc.poly.length;
+  let u0=1e9,u1=-1e9,w0=1e9,w1=-1e9;pts.forEach(q=>{u0=Math.min(u0,q[0]);u1=Math.max(u1,q[0]);w0=Math.min(w0,q[1]);w1=Math.max(w1,q[1]);});
+  out.push({pts,d,u0,u1,w0,w1,hex:m.hex,t:m.t,gid:m.gid,it:m.it});});});
+ out.sort((a,b)=>a.d-b.d);return out;}
+function faceBounds(F){const b={u0:1e9,u1:-1e9,w0:1e9,w1:-1e9};F.forEach(f=>{b.u0=Math.min(b.u0,f.u0);b.u1=Math.max(b.u1,f.u1);b.w0=Math.min(b.w0,f.w0);b.w1=Math.max(b.w1,f.w1);});return b;}
+// draws view faces far-to-near; door frames are filled without seams, then outlined as one door with its panel opening(s)
+function drawFaces(F,X,Y){
+ let o='';const last={},grp={};
+ F.forEach((f,ix)=>{if(FRAME_T.test(f.t)){last[f.gid]=ix;const g=grp[f.gid]||(grp[f.gid]={u0:1e9,u1:-1e9,w0:1e9,w1:-1e9,pieces:[],it:f.it});
+  g.u0=Math.min(g.u0,f.u0);g.u1=Math.max(g.u1,f.u1);g.w0=Math.min(g.w0,f.w0);g.w1=Math.max(g.w1,f.w1);g.pieces.push(f);}});
+ const panels=F.filter(f=>PANEL_T.test(f.t));
+ const rect=(u0,u1,w0,w1,attrs)=>`<rect x="${N(X(u0))}" y="${N(Y(w1))}" width="${N(Math.max((u1-u0)*1,0)*(X(1)-X(0)))}" height="${N(Math.max((w1-w0),0)*(Y(0)-Y(1)))}" ${attrs}/>`;
+ F.forEach((f,ix)=>{const pts=f.pts.map(q=>N(X(q[0]))+','+N(Y(q[1]))).join(' ');
+  if(FRAME_T.test(f.t))o+=`<polygon points="${pts}" fill="${f.hex}" stroke="${f.hex}" stroke-width="0.5"/>`;
+  else if(PANEL_T.test(f.t))o+=`<polygon points="${pts}" fill="${shadeHex(f.hex,0.93)}" stroke="#555555" stroke-width="0.5"/>`;
+  else o+=`<polygon points="${pts}" fill="${f.hex}" stroke="#141414" stroke-width="0.6"/>`;
+  if(FRAME_T.test(f.t)&&last[f.gid]===ix){const g=grp[f.gid];
+   const dk=hexRgb(f.hex).reduce((a,v)=>a+v,0)<330;const lc=dk?'#0c0c0c':'#3a3a3a';
+   panels.forEach(pn=>{if(pn.it!==g.it)return;const cu=(pn.u0+pn.u1)/2,cw=(pn.w0+pn.w1)/2;if(cu<g.u0||cu>g.u1||cw<g.w0||cw>g.w1)return;
+    let a0=pn.u0,a1=pn.u1,b0=pn.w0,b1=pn.w1;
+    g.pieces.forEach(pc=>{if(pc.u1<a0-1||pc.u0>a1+1||pc.w1<b0-1||pc.w0>b1+1)return;const vert=(pc.w1-pc.w0)>=(pc.u1-pc.u0);
+     if(vert){if((pc.u0+pc.u1)/2<cu)a0=Math.max(a0,pc.u1);else a1=Math.min(a1,pc.u0);}else{if((pc.w0+pc.w1)/2<cw)b0=Math.max(b0,pc.w1);else b1=Math.min(b1,pc.w0);}});
+    if(a1-a0>5&&b1-b0>5)o+=rect(a0,a1,b0,b1,`fill="none" stroke="${lc}" stroke-width="0.6"`);});
+   o+=rect(g.u0,g.u1,g.w0,g.w1,`fill="none" stroke="#141414" stroke-width="0.9"`);}});
+ return o;}
+// hinge marks and pulls for the fronts of items seen from their own side; uOf maps a side-local x to the view's u
+function frontMarks(items,X,Y,uOf){let o='';
+ items.forEach(i=>{const p=i.pl;if(!p)return;const ffill=frontHex(i._room,i);const dk=hexRgb(ffill).reduce((a,v)=>a+v,0)<330;
+  (p.f||[]).forEach(f=>{if(f.k!=='d'||(f.hg!=='L'&&f.hg!=='R'))return;const fx=p.x+f.x,fz=p.e+f.z;const hx=f.hg==='L'?fx:fx+f.w,ox=f.hg==='L'?fx+f.w:fx;
+   o+=`<polyline points="${N(X(uOf(ox)))},${N(Y(fz+f.h))} ${N(X(uOf(hx)))},${N(Y(fz+f.h/2))} ${N(X(uOf(ox)))},${N(Y(fz))}" fill="none" stroke="${dk?'#e8e8e8':'#6a6a6a'}" stroke-width="0.7" stroke-dasharray="5 3"/>`;});
+  (p.pu||[]).forEach(q=>{const px=p.x+q[0],pz=p.e+q[1];
+   o+=q[2]==='h'?`<line x1="${N(X(uOf(px)))}" y1="${N(Y(pz))}" x2="${N(X(uOf(px+q[3])))}" y2="${N(Y(pz))}" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>`:`<line x1="${N(X(uOf(px)))}" y1="${N(Y(pz))}" x2="${N(X(uOf(px)))}" y2="${N(Y(pz+q[3]))}" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>`;});});
+ return o;}
+const uniqSorted=(vals,gap)=>{const v=vals.filter(x=>isFinite(x)).sort((a,b)=>a-b);const u=[];v.forEach(x=>{if(!u.length||x-u[u.length-1]>gap)u.push(x);});return u;};
+function hChain(pts,X,y,ext,yTot){let o='';for(let q=0;q<pts.length-1;q++)o+=dimH(X(pts[q]),X(pts[q+1]),y,frac(pts[q+1]-pts[q]),ext);
+ if(pts.length>2&&yTot!=null)o+=dimH(X(pts[0]),X(pts[pts.length-1]),yTot,frac(pts[pts.length-1]-pts[0]),null);return o;}
+function vChain(lv,Y,x,ext,xTot){let o='';for(let q=0;q<lv.length-1;q++)o+=dimV(x,Y(lv[q+1]),Y(lv[q]),frac(lv[q+1]-lv[q]),ext);
+ if(lv.length>2&&xTot!=null)o+=dimV(xTot,Y(lv[lv.length-1]),Y(lv[0]),frac(lv[lv.length-1]-lv[0]),null);return o;}
+function numMark(cx,cy,label){return `<circle cx="${N(cx)}" cy="${N(cy)}" r="10" fill="#ffffff" stroke="#141414" stroke-width="1.3"/>`+txt(cx,cy+0.5,label,{fs:10.5,w:700});}
+
+function elevation(room,ws,availW,availH,opts){opts=opts||{};
+ const L=room.layout,w=L.walls.find(x=>x.n===ws.w);const same=o=>o.w===ws.w&&(o.s||1)===ws.s;
+ const its=room.items.filter(i=>i.pl&&same(i.pl));if(!its.length)return null;its.forEach(i=>i._room=room);
+ const fxs=ws.s===1?L.fx.filter(f=>f.w===ws.w):[],tops=L.tops.filter(same);
+ const meshes=[];its.forEach(i=>meshes.push(...itemMeshes(room,i,sideMap(i.pl))));
+ const F=viewFaces(meshes,VIEWS.front);if(!F.length)return null;const B=faceBounds(F);
+ const isl=isIslandWall(w);const ceil=!isl&&w&&w.h>=1500?w.h:0;
+ const zTop=Math.max(B.w1,...tops.map(t=>t.e+t.t),ceil),zBot=Math.min(0,B.w0);
+ const x0=B.u0,x1=B.u1;const mx=150;const vx0=x0-mx,vx1=x1+mx;
+ const PADL=24,PADR=86,PADT=46,PADB=62;
+ const sc=pickScale(vx1-vx0,zTop-zBot,availW,availH,PADL+PADR,PADT+PADB);const k=sc.ppm;
+ const W=(vx1-vx0)*k+PADL+PADR,H=(zTop-zBot)*k+PADT+PADB;
+ const X=x=>PADL+(x-vx0)*k,Y=z=>PADT+(zTop-z)*k;
+ let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/>`;
+ if(ceil){o+=`<line x1="${N(X(vx0))}" y1="${N(Y(ceil))}" x2="${N(X(vx1))}" y2="${N(Y(ceil))}" stroke="#8a8a8a" stroke-width="0.8" stroke-dasharray="8 4"/>`+txt(X(vx0)+4,Y(ceil)-7,'CEILING',{fs:8,a:'start',fill:'#666'});}
+ if(w&&!isl){[0,w.L].forEach(x=>{if(x>vx0&&x<vx1)o+=`<line x1="${N(X(x))}" y1="${N(Y(0))}" x2="${N(X(x))}" y2="${N(Y(ceil||zTop))}" stroke="#141414" stroke-width="2"/>`;});}
+ fxs.forEach(f=>{if(f.x+f.W<vx0||f.x>vx1)return;o+=`<rect x="${N(X(f.x))}" y="${N(Y(f.e+f.H))}" width="${N(f.W*k)}" height="${N(f.H*k)}" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="0.8"/>`+txt(X(f.x+f.W/2),Y(f.e+f.H/2),f.n.toUpperCase(),{fs:8,fill:'#777'});});
+ o+=drawFaces(F,X,Y);
+ o+=frontMarks(its,X,Y,x=>x);
+ tops.forEach(t=>{o+=`<rect x="${N(X(t.x))}" y="${N(Y(t.e+t.t))}" width="${N(t.L*k)}" height="${N(Math.max(t.t*k,1.5))}" fill="${topHex(room)}" stroke="#141414" stroke-width="0.9"/>`;});
+ o+=`<line x1="${N(X(vx0))}" y1="${N(Y(0))}" x2="${N(X(vx1))}" y2="${N(Y(0))}" stroke="#141414" stroke-width="1.6"/>`;
+ its.forEach(i=>{if(i.num)o+=numMark(X(i.pl.x+i.pl.W/2),Y(i.pl.e+i.pl.H/2),i.label);});
+ if(opts.install){const S2=opts.install;
+  // level line at the top of the base cabinets
+  const bt=Math.max(0,...its.filter(i=>i.num&&i.pl.e<300&&i.pl.H>500&&i.pl.H<1100).map(i=>i.pl.e+i.pl.H));
+  if(bt)o+=`<line x1="${N(X(vx0))}" y1="${N(Y(bt))}" x2="${N(X(vx1))}" y2="${N(Y(bt))}" stroke="#b42318" stroke-width="1" stroke-dasharray="9 5"/>`+txt(X(vx0)+4,Y(bt)-6,(STD.shopLang==='en'?'LEVEL LINE ':'LINHA DE NÍVEL ')+frac(bt)+'" AFF',{fs:8.5,a:'start',fill:'#b42318',w:700});
+  its.forEach(i=>{const p=i.pl;
+   fastenZones(room,i).forEach(n=>{o+=`<rect x="${N(X(n.x0))}" y="${N(Y(n.z1))}" width="${N((n.x1-n.x0)*k)}" height="${N(Math.max((n.z1-n.z0)*k,2))}" fill="rgba(180,35,24,0.18)" stroke="#b42318" stroke-width="0.8"/>`;});
+   if(isFiller(i))o+=`<rect x="${N(X(p.x)-1.5)}" y="${N(Y(p.e+p.H)-1.5)}" width="${N(p.W*k+3)}" height="${N(p.H*k+3)}" fill="none" stroke="#d97706" stroke-width="2"/>`;
+   const sq=S2.seqOf.get(i);if(sq){const sx=X(p.x)+3,sy=Y(p.e+p.H)+3;o+=`<rect x="${N(sx)}" y="${N(sy)}" width="18" height="15" fill="#b42318"/>`+txt(sx+9,sy+8,String(sq),{fs:9,w:700,fill:'#ffffff'});}});
+}
+ // horizontal chains (cabinet widths, then overall)
+ const base=its.filter(i=>i.pl.e<300&&i.pl.H>=150),upp=its.filter(i=>i.pl.e>=300);
+ const edges=list=>uniqSorted(list.flatMap(i=>[i.pl.x,i.pl.x+i.pl.W]),2);
+ o+=hChain(edges(base),X,Y(zBot)+20,Y(0)+3,Y(zBot)+42);
+ const upTop=Math.max(0,...upp.map(i=>i.pl.e+i.pl.H));const ux=edges(upp);
+ for(let q=0;q<ux.length-1;q++)o+=dimH(X(ux[q]),X(ux[q+1]),PADT-22,frac(ux[q+1]-ux[q]),Y(upTop)-3);
+ // vertical chain at right
+ const lv=[0];its.forEach(i=>{const p=i.pl;if(p.H<150&&p.W<150)return;lv.push(p.e+p.H);if(p.e>20)lv.push(p.e);});tops.forEach(t=>lv.push(t.e+t.t));if(ceil)lv.push(ceil);if(zBot<-3)lv.push(zBot);
+ o+=vChain(uniqSorted(lv,6),Y,X(x1)+30,X(x1)+3,X(x1)+60);
+ o+='</svg>';
+ return{svg:o,scale:sc.lab,its};}
+
+/* ---------------- island: one piece of furniture seen from every side ---------------- */
+function islandParts(room,wn){const w=room.layout.walls.find(x=>x.n===wn);if(!isIslandWall(w))return null;
+ const its=room.items.filter(i=>i.pl&&i.pl.w===wn);if(!its.length)return null;its.forEach(i=>i._room=room);
+ const meshes=[];its.forEach(i=>meshes.push(...itemMeshes(room,i,islandMap(i.pl,w))));
+ return{w,its,meshes,side1:its.filter(i=>(i.pl.s||1)===1),side2:its.filter(i=>i.pl.s===2)};}
+function itemRange(I,i){let y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;I.meshes.forEach(m=>{if(m.it!==i)return;m.verts.forEach(v=>{y0=Math.min(y0,v[1]);y1=Math.max(y1,v[1]);z0=Math.min(z0,v[2]);z1=Math.max(z1,v[2]);});});return{y0,y1,z0,z1};}
+function islandSheetsData(room,wn,cell){
+ const I=islandParts(room,wn);if(!I)return null;const L=I.w.L;
+ const views={front:VIEWS.front,back:VIEWS.back,left:VIEWS.left,right:VIEWS.right,top:VIEWS.top};
+ const F={},B={};for(const k in views){F[k]=viewFaces(I.meshes,views[k]);B[k]=faceBounds(F[k]);}
+ const PAD={l:62,r:70,t:40,b:66};
+ // one scale for all five views so they read together
+ const ht=k=>k==='top'?B[k].w1-B[k].w0:Math.max(B[k].w1,0)-Math.min(B[k].w0,0);
+ const fit=need=>{for(const [s,lab] of SCALES){const ppm=s*96/304.8;if(need.every(([k,c])=>(B[k].u1-B[k].u0)*ppm+PAD.l+PAD.r<=c.w&&ht(k)*ppm+PAD.t+PAD.b<=c.h))return{ppm,lab};}
+  const ppm=Math.min(...need.map(([k,c])=>Math.min((c.w-PAD.l-PAD.r)/(B[k].u1-B[k].u0),(c.h-PAD.t-PAD.b)/ht(k))));return{ppm:Math.max(ppm,0.01),lab:'NTS'};};
+ // one scale for the four elevations so they read together; the plan gets its own
+ const sc=fit([['front',cell.wide],['back',cell.wide],['left',cell.end],['right',cell.end]]),scTop=fit([['top',cell.top]]);
+ const make=(key,body)=>{const b=B[key];const k=key==='top'?scTop.ppm:sc.ppm;const zTop=key==='top'?b.w1:Math.max(b.w1,0),zBot=key==='top'?b.w0:Math.min(b.w0,0);
+  const W=(b.u1-b.u0)*k+PAD.l+PAD.r,H=(zTop-zBot)*k+PAD.t+PAD.b;const X=u=>PAD.l+(u-b.u0)*k,Y=z=>PAD.t+(zTop-z)*k;
+  let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/>`;
+  o+=drawFaces(F[key],X,Y);
+  if(key!=='top')o+=`<line x1="${N(X(b.u0)-20)}" y1="${N(Y(0))}" x2="${N(X(b.u1)+20)}" y2="${N(Y(0))}" stroke="#141414" stroke-width="1.6"/>`;
+  o+=body(X,Y,b,zTop,zBot);return{svg:o+'</svg>',w:W,h:H};};
+ const zLevels=(list,b)=>{const lv=[0,Math.max(b.w1,0)];if(b.w0<-3)lv.push(b.w0);list.forEach(i=>{const p=i.pl;if(p.H<150&&p.W<150)return;lv.push(p.e+p.H);if(p.e>20)lv.push(p.e);});return uniqSorted(lv,6);};
+ const sideDims=(list,uOf,X,Y,b,zBot)=>{const base=list.filter(i=>i.pl.e<300&&i.pl.H>=150);
+  const pts=uniqSorted(base.flatMap(i=>[uOf(i.pl.x),uOf(i.pl.x+i.pl.W)]).concat([b.u0,b.u1]),2);
+  return hChain(pts,X,Y(zBot)+20,Y(0)+3,Y(zBot)+42)+vChain(zLevels(list,b),Y,X(b.u1)+26,X(b.u1)+3,X(b.u1)+52);};
+ const front=make('front',(X,Y,b,zt,zb)=>frontMarks(I.side1,X,Y,x=>x)+I.side1.filter(i=>i.num).map(i=>numMark(X(i.pl.x+i.pl.W/2),Y(i.pl.e+i.pl.H/2),i.label)).join('')+sideDims(I.side1,x=>x,X,Y,b,zb));
+ const back=make('back',(X,Y,b,zt,zb)=>frontMarks(I.side2,X,Y,x=>x-L)+I.side2.filter(i=>i.num).map(i=>numMark(X(i.pl.x+i.pl.W/2-L),Y(i.pl.e+i.pl.H/2),i.label)).join('')+sideDims(I.side2,x=>x-L,X,Y,b,zb));
+ // ends: depth chain through the faces that matter (cabinet fronts, back panel, apron, overall) and heights (scribe, toe, apron, top)
+ const endDims=(uOfY)=>(X,Y,b,zt,zb)=>{
+  const ys=[];I.side1.forEach(i=>{const r=itemRange(I,i);if(r.y1>-1e8)ys.push(r.y1);});I.side2.forEach(i=>{const r=itemRange(I,i);if(r.y0<1e8)ys.push(r.y0);});
+  const pts=[b.u0,b.u1]; // an end is one panel; the build-up shows in the island section
+  const s2low=I.side2.filter(i=>i.pl.e>=300).map(i=>itemRange(I,i).z0);
+  const toeTop=Math.max(0,...I.its.filter(i=>i.pl.e<=1&&i.pl.H<200).map(i=>itemRange(I,i).z1));
+  const lv=uniqSorted([b.w0<-3?b.w0:0,0,toeTop||0,...s2low,Math.max(b.w1,0)],6);
+  return hChain(pts,X,Y(zb)+20,Y(Math.max(zb,-1e9))+3,Y(zb)+42)+vChain(lv,Y,X(b.u1)+26,X(b.u1)+3,X(b.u1)+52);};
+ const left=make('left',endDims(y=>-y)),right=make('right',endDims(y=>y));
+ const top=make('top',(X,Y,b)=>dimH(X(b.u0),X(b.u1),Y(b.w0)+26,frac(b.u1-b.u0),Y(b.w0)+3)+dimV(X(b.u1)+30,Y(b.w1),Y(b.w0),frac(b.w1-b.w0),X(b.u1)+3)
+  +txt(X((b.u0+b.u1)/2),Y(b.w1)-14,'SIDE 1 (FRONT)',{fs:9,fill:'#444',w:600})+txt(X((b.u0+b.u1)/2),Y(b.w0)+50,'SIDE 2 (BACK)',{fs:9,fill:'#444',w:600})
+  +I.its.filter(i=>i.num).map(i=>{const r=itemRange(I,i);const m=I.meshes.find(m=>m.it===i);if(!m)return'';let u0=1e9,u1=-1e9;I.meshes.forEach(q=>{if(q.it!==i)return;q.verts.forEach(v=>{u0=Math.min(u0,v[0]);u1=Math.max(u1,v[0]);});});return numMark(X((u0+u1)/2),Y((r.y0+r.y1)/2),i.label);}).join(''));
+ return{I,scale:sc.lab,topScale:scTop.lab,front,back,left,right,top};}
+/* island cross-section at x=cut, looking toward the right end; win (optional) crops to a detail */
+function islandSection(I,cut,availW,availH,win,marks){
+ const boxes=[];I.meshes.forEach(m=>{if(m.t==='PULL')return;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;
+  m.verts.forEach(v=>{x0=Math.min(x0,v[0]);x1=Math.max(x1,v[0]);y0=Math.min(y0,v[1]);y1=Math.max(y1,v[1]);z0=Math.min(z0,v[2]);z1=Math.max(z1,v[2]);});boxes.push({m,x0,x1,y0,y1,z0,z1});});
+ const cutB=boxes.filter(b=>b.x0<=cut&&b.x1>=cut);
+ const endPanel=b=>b.m.it.pl&&b.m.it.pl.W<80&&b.m.it.pl.D>300;
+ const beyond=boxes.filter(b=>b.x0>cut&&endPanel(b));
+ if(!cutB.length)return null;
+ const all=cutB.concat(beyond);
+ let u0=Math.min(...all.map(b=>-b.y1)),u1=Math.max(...all.map(b=>-b.y0)),w0=Math.min(0,...all.map(b=>b.z0)),w1=Math.max(...all.map(b=>b.z1));
+ if(win){u0=win.u0;u1=win.u1;w0=win.w0;w1=win.w1;}
+ const PADL=58,PADR=40,PADT=26,PADB=58;
+ const sc=pickScale(u1-u0,w1-w0,availW,availH,PADL+PADR,PADT+PADB);const k=sc.ppm;
+ const W=(u1-u0)*k+PADL+PADR,H=(w1-w0)*k+PADT+PADB;const X=u=>PADL+(u-u0)*k,Y=z=>PADT+(w1-z)*k;
+ const cid='c'+Math.random().toString(36).slice(2,8);
+ let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/><defs><clipPath id="${cid}"><rect x="${N(X(u0))}" y="${N(Y(w1))}" width="${N((u1-u0)*k)}" height="${N((w1-w0)*k)}"/></clipPath></defs><g clip-path="url(#${cid})">`;
+ const R=(b,fill,stroke,sw)=>`<rect x="${N(X(-b.y1))}" y="${N(Y(b.z1))}" width="${N(Math.max((b.y1-b.y0)*k,0.8))}" height="${N(Math.max((b.z1-b.z0)*k,0.8))}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+ beyond.forEach(b=>{o+=R(b,mixHex(b.m.hex,'#ffffff',0.55),'#9a9a9a',0.6);});
+ cutB.sort((a,b)=>(b.y1-b.y0)*(b.z1-b.z0)-(a.y1-a.y0)*(a.z1-a.z0)).forEach(b=>{o+=R(b,b.m.hex,'#141414',win?1:0.7);});
+ o+=`<line x1="${N(X(u0))}" y1="${N(Y(0))}" x2="${N(X(u1))}" y2="${N(Y(0))}" stroke="#141414" stroke-width="1.6"/>`;
+ (marks||[]).forEach(mk=>{o+=`<rect x="${N(X(mk.u0))}" y="${N(Y(mk.w1))}" width="${N((mk.u1-mk.u0)*k)}" height="${N((mk.w1-mk.w0)*k)}" fill="none" stroke="#b42318" stroke-width="1.2" stroke-dasharray="6 4"/>`
+  +`<circle cx="${N(X(mk.u1))}" cy="${N(Y(mk.w1))}" r="10" fill="#ffffff" stroke="#b42318" stroke-width="1.3"/>`+txt(X(mk.u1),Y(mk.w1)+0.5,mk.l,{fs:10.5,w:700,fill:'#b42318'});});
+ o+='</g>';
+ // dims
+ let hu,lv;
+ if(win){const inW=b=>-b.y0>=u0-1&&-b.y1<=u1+1;
+  hu=uniqSorted(cutB.concat(beyond).flatMap(b=>[-b.y1,-b.y0]).filter(u=>u>=u0+2&&u<=u1-2),5);
+  lv=uniqSorted(cutB.concat(beyond).flatMap(b=>[b.z0,b.z1]).concat([0]).filter(z=>z>=w0+2&&z<=w1-2),5);}
+ else{const ys=[];I.side1.forEach(i=>{const r=itemRange(I,i);if(r.y1>-1e8)ys.push(r.y1);});I.side2.forEach(i=>{const r=itemRange(I,i);if(r.y0<1e8)ys.push(r.y0);});
+  hu=uniqSorted(ys.map(y=>-y).concat([u0,u1]),3);
+  const toeTop=Math.max(0,...I.its.filter(i=>i.pl.e<=1&&i.pl.H<200).map(i=>itemRange(I,i).z1));
+  lv=uniqSorted([w0,0,toeTop,...I.side2.filter(i=>i.pl.e>=300).map(i=>itemRange(I,i).z0),w1],6);}
+ o+=hChain(hu,X,Y(w0)+22,Y(w0)+3,hu.length>2&&!win?Y(w0)+44:null);
+ o+=vChain(lv,Y,PADL-24,X(u0)-3,lv.length>2&&!win?PADL-46:null);
+ o+='</svg>';
+ return{svg:o,scale:sc.lab,u0,u1,w0,w1};}
+
+function plan(room,availW,availH){
+ const L=room.layout;const wall=n=>L.walls.find(w=>w.n===n);
+ const frame=w=>{const a=w.a*Math.PI/180;return{d:[Math.cos(a),Math.sin(a)],n:[Math.sin(a),-Math.cos(a)]};};
+ const P=(w,s,t,sd)=>{const f=frame(w);if(sd===2){const ox=w.x+f.d[0]*w.L-f.n[0]*w.T,oy=w.y+f.d[1]*w.L-f.n[1]*w.T;return[ox-f.d[0]*s-f.n[0]*t,oy-f.d[1]*s-f.n[1]*t];}return[w.x+f.d[0]*s+f.n[0]*t,w.y+f.d[1]*s+f.n[1]*t];};
+ const poly=(w,x,W,o,D,sd)=>[P(w,x,o,sd),P(w,x+W,o,sd),P(w,x+W,o+D,sd),P(w,x,o+D,sd)];
+ const its=[],aps=[];let bx=[1e12,1e12,-1e12,-1e12];
+ const grow=pts=>pts.forEach(q=>{bx[0]=Math.min(bx[0],q[0]);bx[1]=Math.min(bx[1],q[1]);bx[2]=Math.max(bx[2],q[0]);bx[3]=Math.max(bx[3],q[1]);});
+ room.items.forEach(it=>{const pl=it.pl;if(!pl)return;const w=wall(pl.w);if(!w)return;const pts=poly(w,pl.x,pl.W,pl.o,pl.D,pl.s);grow(pts);
+  its.push({it,pts,k:it.kind,lab:P(w,pl.x+pl.W/2,pl.o+pl.D*(it.kind==='u'?0.5:0.6),pl.s),z:(it.kind==='u'?2e4:1e4+Math.min(pl.H,9e3))});});
+ if(bx[0]>bx[2])return null;
+ if(SHOW_APPL)L.ap.forEach(a=>{const w=wall(a.w);if(!w)return;const pts=poly(w,a.x,a.W,a.o,a.D,a.s);const c=P(w,a.x+a.W/2,a.o+a.D*0.5,a.s);
+  if(c[0]>bx[0]-1500&&c[0]<bx[2]+1500&&c[1]>bx[1]-1500&&c[1]<bx[3]+1500){aps.push({a,pts,lab:c});grow(pts);}});
+ const used=new Set(room.items.filter(i=>i.pl).map(i=>i.pl.w));
+ const tags=[];L.walls.forEach(w=>{if(w.inv||!used.has(w.n))return;const q=P(w,w.L/2,-w.T-260);tags.push({w,q});});
+ tags.forEach(t=>grow([t.q]));
+ const m=350;bx=[bx[0]-m,bx[1]-m,bx[2]+m,bx[3]+m];
+ const sc=pickScale(bx[2]-bx[0],bx[3]-bx[1],availW,availH,20,20);const k=sc.ppm;
+ const W=(bx[2]-bx[0])*k+20,H=(bx[3]-bx[1])*k+20;
+ const X=x=>10+(x-bx[0])*k,Y=y=>10+(bx[3]-y)*k;const pt=q=>`${N(X(q[0]))},${N(Y(q[1]))}`;
+ let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/>`;
+ L.walls.forEach(w=>{if(w.inv)return;const pts=[P(w,0,0),P(w,w.L,0),P(w,w.L,-w.T),P(w,0,-w.T)];
+  if(!pts.some(q=>q[0]>bx[0]-w.L&&q[0]<bx[2]+w.L&&q[1]>bx[1]-w.L&&q[1]<bx[3]+w.L))return;
+  o+=`<polygon points="${pts.map(pt).join(' ')}" fill="${w.h&&w.h<1500?'#a9a9a4':'#3a3a38'}" stroke="#141414" stroke-width="0.6"/>`;});
+ L.fx.forEach(f=>{const w=wall(f.w);if(!w)return;o+=`<polygon points="${[P(w,f.x,2),P(w,f.x+f.W,2),P(w,f.x+f.W,-w.T-2),P(w,f.x,-w.T-2)].map(pt).join(' ')}" fill="#ffffff" stroke="#6a6a6a" stroke-width="0.8"/>`;});
+ aps.forEach(a=>{o+=`<polygon points="${a.pts.map(pt).join(' ')}" fill="#ffffff" stroke="#6a6a6a" stroke-width="0.9" stroke-dasharray="6 3"/>`+txt(X(a.lab[0]),Y(a.lab[1]),a.a.n.length>20?a.a.n.slice(0,19)+'…':a.a.n,{fs:8,fill:'#555'});});
+ its.sort((a,b)=>a.z-b.z);
+ its.forEach(q=>{const f=q.k==='u'?'none':frontHex(room,q.it);
+  o+=`<polygon points="${q.pts.map(pt).join(' ')}" fill="${f}" stroke="#141414" stroke-width="${q.k==='u'?0.9:1.1}"${q.k==='u'?' stroke-dasharray="6 4"':''}/>`;});
+ its.forEach(q=>{if(!q.it.num)return;const cx=X(q.lab[0]),cy=Y(q.lab[1]);o+=`<circle cx="${N(cx)}" cy="${N(cy)}" r="${q.k==='u'?8:9}" fill="#ffffff" stroke="#141414" stroke-width="1.1"${q.k==='u'?' stroke-dasharray="3 2"':''}/>`+txt(cx,cy+0.5,q.it.label,{fs:q.k==='u'?8.5:9.5,w:700});});
+ tags.forEach(t=>{const cx=X(t.q[0]),cy=Y(t.q[1]);o+=`<rect x="${N(cx-24)}" y="${N(cy-8)}" width="48" height="16" rx="8" fill="#1f3a2e"/>`+txt(cx,cy+0.5,'WALL '+t.w.n,{fs:8.5,w:700,fill:'#f6efe0'});});
+ o+='</svg>';
+ return{svg:o,scale:sc.lab,ppm:k,h:H};}
+
+/* ---------------- colors (swatches) ---------------- */
+const GUESS=[[/walnut/i,'#6e4b33'],[/cherry/i,'#97583a'],[/white oak|rift|quarter/i,'#c8a67a'],[/oak/i,'#bf9868'],[/hickory/i,'#b68a5c'],[/alder/i,'#c0875c'],
+ [/maple|prefinished|plywood|birch|baltic/i,'#e2cda5'],[/\bash\b/i,'#d7c29e'],[/wood|veneer/i,'#c39a6b'],
+ [/black|onyx|charcoal|iron|wrought/i,'#34373b'],[/navy|hale|blue|indigo/i,'#41586f'],[/green|sage|olive|forest/i,'#7c8b73'],
+ [/wolf gr/i,'#86959e'],[/boothbay/i,'#8d9ca4'],[/gr[ae]y|slate|stone|pewter|silver/i,'#9a9f9f'],
+ [/white|snow|chantilly|simply|alabaster|linen|chalk/i,'#f0eee7'],[/cream|ivory|beige|greige|tan|sand/i,'#e3d6bf'],
+ [/quartz|marble|granite|counter/i,'#eceae5'],[/stainless|appliance/i,'#c4c7c8'],[/melamine/i,'#efefeb'],[/mdf|paint|primer/i,'#ebe8e0']];
+function guessColor(n){for(const [re,c] of GUESS)if(re.test(n))return c;return '#e7e2d8';}
+let swatchVer=0;
+const swatch=n=>(STD.swatch&&STD.swatch[n])||guessColor(n);
+function colorName(room,it,g){
+ if(it&&it.col&&it.col[g])return it.col[g];
+ if(g==='int')return room.mats.case||'Case interior';
+ if(g==='dbox')return room.mats.dbox||'Drawer box';
+ return room.mats.doors||'Door finish';}
+const hexRgb=h=>{const v=parseInt(String(h).replace('#',''),16);return[(v>>16)&255,(v>>8)&255,v&255];};
+const rgbHex=c=>'#'+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const shadeHex=(h,k)=>rgbHex(hexRgb(h).map(v=>v*k));
+const mixHex=(h,w,k)=>{const a=hexRgb(h),b=hexRgb(w);return rgbHex(a.map((v,i)=>v*(1-k)+b[i]*k));};
+function partGroup(ty){const t=ty.toUpperCase();if(t==='DRAWER')return'front';return grpOf(t)||'int';}
+function partHex(room,it,ty){const t=ty.toUpperCase();
+ if(t==='GLASS')return'#bcd2d9';if(t==='METAL')return'#3a3c3e';
+ return swatch(colorName(room,it,partGroup(ty)));}
+const frontHex=(room,it)=>swatch(colorName(room,it,'front'));
+const extHex=(room,it)=>swatch(colorName(room,it,'ext'));
+const topHex=room=>swatch(room.mats.top||'Countertop');
+function collectSwatches(rooms){const m=new Map();const add=(n,use)=>{if(!n)return;if(!m.has(n))m.set(n,new Set());m.get(n).add(use);};
+ rooms.forEach(r=>{r.items.forEach(i=>{add(colorName(r,i,'front'),r.name+' · fronts');add(colorName(r,i,'ext'),r.name+' · exterior');add(colorName(r,i,'int'),r.name+' · interior');if(i.nDrw)add(colorName(r,i,'dbox'),r.name+' · drawer boxes');});
+  if(r.layout.tops.length)add(r.mats.top||'Countertop',r.name+' · countertop');});
+ return [...m.entries()].map(([n,u])=>({n,uses:[...u]}));}
+
+/* ---------------- 3D wall views (z-buffer raster, SketchUp-style edges) ---------------- */
+function earClip(sh){
+ const n=sh.length,idx=[...Array(n).keys()],tris=[];
+ const cr=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+ const inside=(p,a,b,c)=>cr(a,b,p)>=0&&cr(b,c,p)>=0&&cr(c,a,p)>=0;
+ let guard=0;
+ while(idx.length>3&&guard++<500){let cut=false;
+  for(let k=0;k<idx.length;k++){const ia=idx[(k+idx.length-1)%idx.length],ib=idx[k],ic=idx[(k+1)%idx.length];const a=sh[ia],b=sh[ib],c=sh[ic];
+   if(cr(a,b,c)<=1e-9)continue;if(idx.some(m=>m!==ia&&m!==ib&&m!==ic&&inside(sh[m],a,b,c)))continue;
+   tris.push([ia,ib,ic]);idx.splice(k,1);cut=true;break;}
+  if(!cut)break;}
+ if(idx.length===3)tris.push([idx[0],idx[1],idx[2]]);else for(let k=1;k<idx.length-1;k++)tris.push([idx[0],idx[k],idx[k+1]]);
+ return tris;}
+function partLocalVerts(o){ // returns {verts,faces} in product-local coordinates
+ let sh=o.s&&o.s.length>=3?o.s.slice():[[0,0],[o.L,0],[o.L,o.W],[0,o.W]];
+ let ar=0;for(let k=0;k<sh.length;k++){const a=sh[k],b=sh[(k+1)%sh.length];ar+=a[0]*b[1]-b[0]*a[1];}if(ar<0)sh.reverse();
+ const tf=v=>{for(let k=0;k<3;k++)v=rotAx(v,o.r[k]||'X',o.a[k]||0);return[v[0]+o.p[0],v[1]+o.p[1],v[2]+o.p[2]];};
+ const n=sh.length,verts=sh.map(q=>tf([q[0],q[1],0])).concat(sh.map(q=>tf([q[0],q[1],o.T])));
+ const tt=earClip(sh);const faces=[];
+ faces.push({poly:sh.map((_,k)=>n-1-k),tris:tt.map(t3=>[t3[2],t3[1],t3[0]])});
+ faces.push({poly:sh.map((_,k)=>n+k),tris:tt.map(t3=>[n+t3[0],n+t3[1],n+t3[2]])});
+ for(let k=0;k<n;k++){const k2=(k+1)%n;faces.push({poly:[k,k2,n+k2,n+k],tris:[[k,k2,n+k2],[k,n+k2,n+k]]});}
+ return{verts,faces};}
+function boxPrim(x0,x1,y0,y1,z0,z1,hex,fit){
+ const v=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
+ const F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
+ return{verts:v,faces:F.map(p=>({poly:p,tris:[[p[0],p[1],p[2]],[p[0],p[2],p[3]]]})),hex,fit:fit!==false};}
+function quadPrim(pts,hex){return{verts:pts,faces:[{poly:[0,1,2,3],tris:[[0,1,2],[0,2,3]]}],hex,fit:false};}
+const V3cache=new Map();
+function wallScene(room,ws){
+ const L=room.layout;const same=o=>o.w===ws.w&&(o.s||1)===ws.s;
+ const its=room.items.filter(i=>i.pl&&same(i.pl));if(!its.length)return null;
+ const prims=[],marks=[];
+ its.forEach(i=>{const p=i.pl,M=sideMap(p);prims.push(...itemMeshes(room,i,M),...pullMeshes(i,M));
+  if(i.num)marks.push({label:i.label,pt:[p.x+p.W/2,p.o+p.D+30,p.e+p.H/2]});});
+ L.tops.filter(same).forEach(t=>prims.push(boxPrim(t.x,t.x+t.L,0,t.D||640,t.e,t.e+t.t,topHex(room))));
+ if(SHOW_APPL)L.ap.filter(same).forEach(a=>prims.push(boxPrim(a.x,a.x+a.W,a.o,a.o+(a.D||600),a.e,a.e+a.H,'#c4c7c8')));
+ let U0=1e9,U1=-1e9,Z1=0,D1=0;prims.forEach(pr=>pr.verts.forEach(v=>{U0=Math.min(U0,v[0]);U1=Math.max(U1,v[0]);Z1=Math.max(Z1,v[2]);D1=Math.max(D1,v[1]);}));
+ const w=L.walls.find(x=>x.n===ws.w);const isl=isIslandWall(w);const wallH=!isl&&w&&w.h>=1500?w.h:Z1+250;
+ const a0=U0-450,a1=U1+450;
+ if(!isl){prims.push(quadPrim([[a0,-2,0],[a1,-2,0],[a1,-2,wallH],[a0,-2,wallH]],'#f2efe9'));
+  (ws.s===1?L.fx.filter(f=>f.w===ws.w):[]).forEach(f=>{if(f.x+f.W<a0||f.x>a1)return;prims.push(quadPrim([[f.x,0,f.e],[f.x+f.W,0,f.e],[f.x+f.W,0,f.e+f.H],[f.x,0,f.e+f.H]],/door/i.test(f.n)?'#e4ddd0':'#cfe0e6'));});}
+ prims.push(quadPrim([[a0,-2,-1],[a1,-2,-1],[a1,D1+1100,-1],[a0,D1+1100,-1]],'#d8d1c4'));
+ return{prims,marks,U0,U1,Z1,D1,Y0:0};}
+// the whole island in one frame (both sides), no wall, floor all around
+function islandScene(room,wn){const I=islandParts(room,wn);if(!I)return null;
+ const prims=[],marks=[];
+ I.its.forEach(i=>{const M=islandMap(i.pl,I.w);prims.push(...pullMeshes(i,M));if(i.num){let x0=1e9,x1=-1e9,y1=-1e9,y0=1e9;
+  I.meshes.forEach(m=>{if(m.it!==i)return;m.verts.forEach(v=>{x0=Math.min(x0,v[0]);x1=Math.max(x1,v[0]);y0=Math.min(y0,v[1]);y1=Math.max(y1,v[1]);});});
+  const s1=(i.pl.s||1)===1;marks.push({label:i.label,side:s1?1:2,pt:[(x0+x1)/2,s1?y1+30:y0-30,i.pl.e+i.pl.H/2]});}});
+ prims.push(...I.meshes);
+ let U0=1e9,U1=-1e9,Z1=0,D1=-1e9,Y0=1e9;prims.forEach(pr=>pr.verts.forEach(v=>{U0=Math.min(U0,v[0]);U1=Math.max(U1,v[0]);Z1=Math.max(Z1,v[2]);D1=Math.max(D1,v[1]);Y0=Math.min(Y0,v[1]);}));
+ prims.push(quadPrim([[U0-700,Y0-900,-1],[U1+700,Y0-900,-1],[U1+700,D1+900,-1],[U0-700,D1+900,-1]],'#e2ddd3'));
+ prims[prims.length-1].fit=false;
+ return{prims,marks,U0,U1,Z1,D1,Y0};}
+function render3D(room,ws,dispW,dispH,opt){
+ opt=opt||{};const key=[room.id,ws.w,ws.s,dispW,dispH,swatchVer,opt.island?'I':'',(opt.dir||[]).join(','),opt.key||''].join('|');if(V3cache.has(key))return V3cache.get(key);
+ const sc=opt.scene||(opt.island?islandScene(room,ws.w):wallScene(room,ws));if(!sc)return null;
+ const RS=2,IW=Math.round(dispW*RS),IH=Math.round(dispH*RS);
+ const width=sc.U1-sc.U0,uc=(sc.U0+sc.U1)/2;
+ const T=[uc,(sc.Y0+sc.D1)/2*(opt.island?1:0.9),sc.Z1*0.45];
+ const dist=Math.max(width*1.05,sc.Z1*1.5)+1800;
+ const dir=opt.dir||[-0.30,1,0.42];const dl=Math.hypot(...dir);const E=[T[0]+dir[0]/dl*dist,T[1]+dir[1]/dl*dist,T[2]+dir[2]/dl*dist];
+ const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],nrm=a=>{const l=Math.hypot(...a)||1;return[a[0]/l,a[1]/l,a[2]/l];};
+ const f=nrm(sub(T,E)),r=nrm(crs([0,0,1],f)),u=crs(f,r);
+ const cam=P=>{const d=sub(P,E);return[dot(d,r),dot(d,u),dot(d,f)];};
+ let bx0=1e9,bx1=-1e9,by0=1e9,by1=-1e9;
+ sc.prims.forEach(pr=>{pr.c=pr.verts.map(cam);if(!pr.fit)return;pr.c.forEach(c=>{if(c[2]<=10)return;const x=c[0]/c[2],y=c[1]/c[2];bx0=Math.min(bx0,x);bx1=Math.max(bx1,x);by0=Math.min(by0,y);by1=Math.max(by1,y);});});
+ const k=Math.min(IW*0.9/(bx1-bx0),IH*0.86/(by1-by0)),ox=IW/2-k*(bx0+bx1)/2,oy=IH/2+k*(by0+by1)/2;
+ const scr=c=>[ox+k*c[0]/c[2],oy-k*c[1]/c[2],1/c[2]];
+ const depth=new Float32Array(IW*IH),fb=new Int32Array(IW*IH).fill(-1);const fcol=[],fgrp=[],fnk=[];
+ const Lt=nrm([-0.45,0.8,0.6]);let fid=0;
+ const raster=(A,B,C,id)=>{
+  const x0=Math.max(0,Math.floor(Math.min(A[0],B[0],C[0]))),x1=Math.min(IW-1,Math.ceil(Math.max(A[0],B[0],C[0])));
+  const y0=Math.max(0,Math.floor(Math.min(A[1],B[1],C[1]))),y1=Math.min(IH-1,Math.ceil(Math.max(A[1],B[1],C[1])));
+  const area=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);if(Math.abs(area)<1e-6)return;const ia=1/area;
+  for(let y=y0;y<=y1;y++){const py=y+0.5;for(let x=x0;x<=x1;x++){const px=x+0.5;
+   const w0=((B[0]-px)*(C[1]-py)-(B[1]-py)*(C[0]-px))*ia,w1=((C[0]-px)*(A[1]-py)-(C[1]-py)*(A[0]-px))*ia,w2=1-w0-w1;
+   if(w0<-1e-4||w1<-1e-4||w2<-1e-4)continue;const ix=y*IW+x;const iz=w0*A[2]+w1*B[2]+w2*C[2];if(iz>depth[ix]){depth[ix]=iz;fb[ix]=id;}}}};
+ let gseq=0;
+ sc.prims.forEach(pr=>{const s=pr.c.map(scr);const base=hexRgb(pr.hex);const gid=pr.gid||('g'+(gseq++));
+  pr.faces.forEach(fc=>{const pl=fc.poly;if(pl.some(i=>pr.c[i][2]<=10))return;
+   let n=newell(pr.verts,pl);if(dot(n,sub(E,pr.verts[pl[0]]))<0)n=[-n[0],-n[1],-n[2]];
+   const lam=Math.max(0,dot(n,Lt)),kk=0.6+0.42*lam;fcol[fid]=[base[0]*kk,base[1]*kk,base[2]*kk];fgrp[fid]=gid;fnk[fid]=Math.round(n[0]*20)+'|'+Math.round(n[1]*20)+'|'+Math.round(n[2]*20);
+   fc.tris.forEach(t=>raster(s[t[0]],s[t[1]],s[t[2]],fid));fid++;});});
+ // an outline is drawn where the surface changes part, or turns a corner inside a part; pieces of one door frame read as one surface
+ const edge=(a,b)=>a!==b&&(b<0||a<0||fgrp[a]!==fgrp[b]||fnk[a]!==fnk[b]);
+ const cv=document.createElement('canvas');cv.width=IW;cv.height=IH;const ctx=cv.getContext('2d');const img=ctx.createImageData(IW,IH);const d=img.data;
+ for(let i=0,n=IW*IH;i<n;i++){const o=i*4,fi=fb[i];
+  if(fi<0){d[o]=255;d[o+1]=255;d[o+2]=255;d[o+3]=255;continue;}
+  const c=fcol[fi];let rr=c[0],gg=c[1],bb=c[2];
+  const xr=(i%IW)<IW-1?fb[i+1]:fi,yd=i+IW<n?fb[i+IW]:fi,xl=(i%IW)>0?fb[i-1]:fi,yu=i>=IW?fb[i-IW]:fi;
+  if(edge(fi,xr)||edge(fi,yd)||edge(fi,xl)||edge(fi,yu)){rr*=0.32;gg*=0.32;bb*=0.32;}
+  d[o]=Math.min(255,rr);d[o+1]=Math.min(255,gg);d[o+2]=Math.min(255,bb);d[o+3]=255;}
+ ctx.putImageData(img,0,0);
+ const R=13*RS;ctx.font=`700 ${12*RS}px Arial, Helvetica, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+ sc.marks.forEach(m=>{if(m.side&&((m.side===1)!==(dir[1]>0)))return;const c=cam(m.pt);if(c[2]<=10)return;const s=scr(c);ctx.beginPath();ctx.arc(s[0],s[1],R,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();ctx.lineWidth=1.6*RS;ctx.strokeStyle='#141414';ctx.stroke();ctx.fillStyle='#141414';ctx.fillText(m.label,s[0],s[1]+RS);});
+ const out={url:cv.toDataURL('image/jpeg',0.9)};
+ if(V3cache.size>40)V3cache.clear();V3cache.set(key,out);return out;}
+
+/* ---------------- cross sections ---------------- */
+function partBox(o){const b={x0:1e9,y0:1e9,z0:1e9,x1:-1e9,y1:-1e9,z1:-1e9};
+ [0,o.L].forEach(x=>[0,o.W].forEach(y=>[0,o.T].forEach(z=>{let v=[x,y,z];for(let k=0;k<3;k++)v=rotAx(v,o.r[k]||'X',o.a[k]||0);
+  const q=[v[0]+o.p[0],v[1]+o.p[1],v[2]+o.p[2]];b.x0=Math.min(b.x0,q[0]);b.x1=Math.max(b.x1,q[0]);b.y0=Math.min(b.y0,q[1]);b.y1=Math.max(b.y1,q[1]);b.z0=Math.min(b.z0,q[2]);b.z1=Math.max(b.z1,q[2]);})));
+ return b;}
+function sectionPicks(room){const c=room.items.filter(i=>i.num&&i.g&&i.g.length>3&&i.W>150&&i.D>150);const seen=new Set(),out=[];
+ const sig=i=>i.kind+'|'+Math.round(i.D/25)+'|'+Math.round(i.H/50)+'|'+(i.nDrw?'d':'')+(i.doors.length?'o':'');
+ ['b','t','u'].forEach(k=>c.filter(i=>i.kind===k).forEach(i=>{const s=sig(i);if(seen.has(s))return;seen.add(s);out.push(i);}));
+ return out.slice(0,6);}
+const PNAME={DOOR:'Door',DRAWER:'Drawer front',DOORFRAME:'Door frame',DOORPANEL:'Door panel',DRAWERFRAME:'Drawer front frame',DRAWERPANEL:'Drawer front panel',FRAME:'Face frame',
+ FEND:'Finished end',UEND:'Side',END:'Side',BOTTOM:'Bottom',TOP:'Top',UBACK:'Back',FBACK:'Finished back',NAILER:'Nailer',STRETCHER:'Stretcher',ADJUSTABLESHELF:'Adj. shelf',FIXEDSHELF:'Fixed shelf',
+ DRAWERSIDE:'Drawer box',DRAWERFRONT:'Drawer box',DRAWERBACK:'Drawer box',DRAWERBOTTOM:'Drawer bottom',TOE:'Toe kick',SLEEPER:'Sleeper',FINEXTERIOR:'Applied panel',PARTITION:'Partition',GLASS:'Glass'};
+function section(room,it,availW,availH){
+ const g=it.g||[];if(!g.length)return null;const cx=it.W/2;const cut=[],beyond=[];
+ g.forEach(o=>{const b=partBox(o);if(b.x0<=cx&&b.x1>=cx)cut.push({o,b});else if(/^(FEND|UEND|END)$/i.test(o.t))beyond.push({o,b});});
+ if(!cut.length)return null;
+ const pl=it.pl||{o:0,D:it.D,e:0,x:0,W:it.W,w:0,s:1};const wallY=it.D+(pl.o||0);
+ let top=null;if(it.kind!=='u'&&it.pl){const t=room.layout.tops.find(t=>t.w===pl.w&&(t.s||1)===(pl.s||1)&&t.x<pl.x+pl.W-5&&t.x+t.L>pl.x+5);if(t)top={y0:wallY-(t.D||640),y1:wallY,z0:t.e-pl.e,z1:t.e-pl.e+t.t};}
+ let y0=Math.min(...cut.map(c=>c.b.y0)),y1=Math.max(wallY,...cut.map(c=>c.b.y1)),z0=Math.min(0,...cut.map(c=>c.b.z0)),z1=Math.max(...cut.map(c=>c.b.z1));
+ if(top){y0=Math.min(y0,top.y0);z1=Math.max(z1,top.z1);}
+ const PADL=58,PADR=34,PADT=22,PADB=46;
+ const sc=pickScale(y1-y0,z1-z0,availW,availH,PADL+PADR,PADT+PADB);const k=sc.ppm;
+ const W=(y1-y0)*k+PADL+PADR,H=(z1-z0)*k+PADT+PADB;const X=y=>PADL+(y-y0)*k,Y=z=>PADT+(z1-z)*k;
+ let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/>`;
+ // wall
+ o+=`<rect x="${N(X(wallY))}" y="${N(Y(z1)-8)}" width="14" height="${N((z1-z0)*k+16)}" fill="#e6e3dc" stroke="#141414" stroke-width="1"/>`;
+ for(let yy=Y(z1)-8;yy<Y(z0)+8;yy+=9)o+=`<line x1="${N(X(wallY))}" y1="${N(yy+9)}" x2="${N(X(wallY)+14)}" y2="${N(yy)}" stroke="#9a9a9a" stroke-width="0.6"/>`;
+ if(it.kind!=='u')o+=`<line x1="${N(X(y0)-20)}" y1="${N(Y(0))}" x2="${N(X(wallY)+14)}" y2="${N(Y(0))}" stroke="#141414" stroke-width="1.6"/>`;
+ beyond.forEach(c=>{o+=`<rect x="${N(X(c.b.y0))}" y="${N(Y(c.b.z1))}" width="${N((c.b.y1-c.b.y0)*k)}" height="${N((c.b.z1-c.b.z0)*k)}" fill="${mixHex(partHex(room,it,c.o.t),'#ffffff',0.6)}" stroke="#9a9a9a" stroke-width="0.7"/>`;});
+ cut.sort((a,b)=>(b.b.y1-b.b.y0)*(b.b.z1-b.b.z0)-(a.b.y1-a.b.y0)*(a.b.z1-a.b.z0));
+ cut.forEach(c=>{o+=`<rect x="${N(X(c.b.y0))}" y="${N(Y(c.b.z1))}" width="${N(Math.max((c.b.y1-c.b.y0)*k,1))}" height="${N(Math.max((c.b.z1-c.b.z0)*k,1))}" fill="${partHex(room,it,c.o.t)}" stroke="#141414" stroke-width="0.8"/>`;});
+ if(top)o+=`<rect x="${N(X(top.y0))}" y="${N(Y(top.z1))}" width="${N((top.y1-top.y0)*k)}" height="${N((top.z1-top.z0)*k)}" fill="${topHex(room)}" stroke="#141414" stroke-width="1"/>`;
+ // dims
+ const fy=Math.min(...cut.map(c=>c.b.y0)),by=Math.max(...cut.map(c=>c.b.y1));
+ o+=dimH(X(fy),X(by),Y(z0)+22,frac(by-fy),Y(z0)+3);
+ if(top&&Math.abs(top.y0-fy)>3)o+=dimH(X(top.y0),X(fy),Y(top.z1)-12,frac(fy-top.y0),Y(top.z1)-3);
+ const zs=[z0];const toe=cut.filter(c=>/^toe$/i.test(c.o.t)).sort((a,b)=>a.b.y0-b.b.y0)[0];if(toe&&toe.b.z1>20&&toe.b.z1<260)zs.push(toe.b.z1);
+ const boxTop=Math.max(...cut.map(c=>c.b.z1));zs.push(boxTop);if(top)zs.push(top.z1);
+ const lv=[...new Set(zs.map(v=>Math.round(v*10)/10))].sort((a,b)=>a-b);
+ for(let q=0;q<lv.length-1;q++)o+=dimV(PADL-26,Y(lv[q+1]),Y(lv[q]),frac(lv[q+1]-lv[q]),X(y0)-3);
+ if(lv.length>2)o+=dimV(PADL-48,Y(lv[lv.length-1]),Y(lv[0]),frac(lv[lv.length-1]-lv[0]),null);
+ if(it.kind==='u'&&pl.e)o+=txt(X(y0),Y(z0)+38,'Bottom at '+frac(pl.e)+'" A.F.F.',{fs:9,a:'start',fill:'#444'});
+ if(toe)o+=txt(X(toe.b.y0),Y(0)+38,'Toe setback '+frac(toe.b.y0-fy)+'"',{fs:9,a:'start',fill:'#444'});
+ o+='</svg>';
+ const lg=new Map();cut.forEach(c=>{const nmn=PNAME[c.o.t.toUpperCase()]||c.o.t;const th=fi(c.o.T);if(!lg.has(nmn))lg.set(nmn,th);});
+ if(beyond.length)lg.set('Side (beyond)',fi(beyond[0].o.T));if(top)lg.set('Countertop',fi(top.z1-top.z0));
+ return{svg:o,scale:sc.lab,legend:[...lg.entries()].map(([a,b])=>a+' '+b).join(' · ')};}
+
+/* ---------------- sheet building ---------------- */
+const PAPER={tabloid:{w:1632,h:1056,in:[17,11]},letter:{w:1056,h:816,in:[11,8.5]}};
+const paper=()=>PAPER[S.info.paper]||PAPER.tabloid;
+function logoHtml(){
+ if(STD.logo)return `<img src="${STD.logo}" alt="">`;
+ const n=(STD.company.name||'Heartwood Millwork').trim().split(/\s+/);
+ return `<div class="wm"><div class="em">${esc((n[0]||'H')[0])}</div><div><b>${esc((n[0]||'').toUpperCase())}</b><small>${esc(n.slice(1).join(' ').toUpperCase())}</small></div></div>`;}
+function tbHtml(title,sub,scale){
+ const I=S.info,C=STD.company;
+ return `<aside class="tb">
+ <div class="tb-logo">${logoHtml()}</div>
+ <div class="tb-co">${esc(C.name||'')}<br>${[C.web,C.phone].filter(Boolean).map(esc).join(' · ')}</div>
+ <div><span class="lbl">Project</span><b>${esc(I.project)}</b></div>
+ <div><span class="lbl">Client</span><b>${esc(I.client)||'&nbsp;'}</b></div>
+ <div><span class="lbl">Site address</span><b>${esc(I.address)||'&nbsp;'}</b></div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="lbl">Job no.</span><b>${esc(I.jobNo)||'&nbsp;'}</b></div><div><span class="lbl">Drawn by</span><b>${esc(I.designer)||'&nbsp;'}</b></div></div>
+ <div class="tb-rev"><span class="lbl">Revisions</span><table><tr><th>Rev</th><th>Date</th><th>Description</th></tr><tr><td>${esc((I.rev||'').replace(/^rev\s*/i,''))}</td><td>${esc(fmtDate(I.date))}</td><td>${esc(I.revNote)}</td></tr></table></div>
+ ${S.tab&&S.tab!=='sd'?`<div class="tb-appr"><span class="lbl">${tr('Conferido por','Checked by')}</span><div class="ln"></div><span class="lbl">${tr('Data','Date')}</span><div class="ln"></div></div>`:`<div class="tb-appr"><span class="lbl">Client approval</span><div class="bx"><span>Approved</span><span>Approved as noted</span><span>Revise &amp; resubmit</span></div><div class="ln"></div><span class="lbl">Signature</span><div class="ln"></div><span class="lbl">Date</span></div>`}
+ <div class="tb-title"><span class="lbl">Sheet title</span><b>${esc(title)}</b>${sub?`<i>${esc(sub)}</i>`:''}</div>
+ <div><span class="lbl">Scale</span><b>${esc(scale||'As noted')}</b></div>
+ <div class="tb-no"><div><span class="lbl">Sheet</span><span class="sn">SD-?</span></div><span class="sof">of ?</span></div>
+ </aside>`;}
+function fmtDate(v){if(!v)return'';const [y,m,d]=v.split('-');return `${+m}/${+d}/${y}`;}
+let SHEETS=[];
+function newSheet(title,sub,scale,inner){
+ const P=paper();const wrap=document.createElement('div');wrap.className='sw';
+ const sh=document.createElement('div');sh.className='sheet'+(S.info.paper==='letter'?' letter':'');
+ sh.innerHTML=`<div class="frame"><div class="ca">${inner||''}</div>${tbHtml(title,sub,scale)}</div>`;
+ wrap.appendChild(sh);$('sheets').appendChild(wrap);SHEETS.push({wrap,sh,title,sub});
+ return sh;}
+function fitPreviews(){
+ const P=paper();const host=$('sheets');const W=host.clientWidth||800;const k=Math.min(1,W/P.w);
+ SHEETS.forEach(s=>{s.wrap.style.width=(P.w*k)+'px';s.wrap.style.height=(P.h*k)+'px';s.sh.style.transform=`scale(${k})`;});}
+/* table flow: fills regions, continuing on new sheets */
+function tableEl(cols,cls){const t=document.createElement('table');t.className='st'+(cls?' '+cls:'');
+ t.innerHTML=`<colgroup>${cols.map(c=>`<col style="width:${c.w}">`).join('')}</colgroup><thead><tr>${cols.map(c=>`<th>${c.h}</th>`).join('')}</tr></thead><tbody></tbody>`;return t;}
+function flow(blocks,region,nextRegion){
+ // blocks: [{title, cols, rows:[html tr strings]}]
+ for(const b of blocks){
+  let i=0;
+  while(i<b.rows.length){
+   const h=document.createElement('div');h.className='st-h';h.textContent=b.title+(i>0?' (continued)':'');
+   const t=tableEl(b.cols,b.cls);region.appendChild(h);region.appendChild(t);const tb=t.tBodies[0];let added=0;
+   for(;i<b.rows.length;i++){const tmp=document.createElement('tbody');tmp.innerHTML=b.rows[i];const tr=tmp.firstElementChild;tb.appendChild(tr);
+    if(region.scrollHeight>region.clientHeight+1){tb.removeChild(tr);break;}added++;}
+   if(!added){t.remove();h.remove();}
+   if(i<b.rows.length)region=nextRegion();
+  }
+ }
+}
+const tbd='<span class="tbd">TBD – CONFIRM</span>';
+const cell=v=>v&&String(v).trim()?esc(v):tbd;
+
+function cabFronts(i){const b=[];const nd=i.doors.length;
+ if(nd){const hs=i.doors.map(d=>d.hg).filter(Boolean);b.push(nd+' door'+(nd>1?'s':'')+(hs.length?` (hinged ${hs.join('/')})`:''));}
+ if(i.nDrw)b.push(i.nDrw+' drawer'+(i.nDrw>1?'s':''));if(i.nFalse)b.push(i.nFalse+' false front'+(i.nFalse>1?'s':''));
+ if(i.ro)b.push(i.ro+' roll-out'+(i.ro>1?'s':''));
+ if(i.adj)b.push(i.adj+' adj. '+(i.adj>1?'shelves':'shelf'));if(i.fix)b.push(i.fix+' fixed '+(i.fix>1?'shelves':'shelf'));
+ if(i.toeH&&i.kind!=='u')b.push(fi(i.toeH)+' toe');
+ if(!b.length)b.push(i.finInt?'Open, finished interior':'Open');return b.join(' · ');}
+function cabHw(i){const b=[];const h=Object.values(i.hinges).reduce((a,v)=>a+v,0);if(h)b.push(h+' hinge'+(h>1?'s':''));
+ Object.keys(i.slides).forEach(k=>{const [g,len]=k.split('|');b.push(`${i.slides[k]} pr glides ${len}"`);});
+ if(i.pulls)b.push(i.pulls+' pull'+(i.pulls>1?'s':''));if(i.lights)b.push(i.lights+' light'+(i.lights>1?'s':''));return b.join(' · ')||'—';}
+function cabNotes(i,room){const s=room.sum,b=[];
+ if(i.ov.door&&i.ov.door!==s.doorPrimary)b.push('Door: '+i.ov.door);
+ const ds=uniq(i.doors.filter(d=>d.n>0).map(d=>d.st)).filter(st=>st!==s.doorPrimary);if(!i.ov.door&&ds.length)b.push('Door: '+ds.join(', '));
+ if(i.ov.df)b.push('Drawer front: '+i.ov.df);if(i.ov.guide)b.push('Glides: '+i.ov.guide);if(i.ov.hinge)b.push('Hinges: '+i.ov.hinge);if(i.ov.pull)b.push('Pulls: '+i.ov.pull);
+ const fc=i.col.front,roomFront=s.primary;
+ if(fc&&fc!==roomFront)b.push('Color: '+fc);
+ else if(!fc&&roomFront&&(i.doors.length||i.nDrw||i.nFalse))b.push('Color: standard finish – confirm (not '+roomFront+')');
+ if(i.col.ext&&i.col.ext!==fc&&i.col.ext!==roomFront)b.push('Exterior color: '+i.col.ext);
+ if(i.mat.ext)b.push('Exterior material: '+i.mat.ext);if(i.mat.int)b.push('Interior material: '+i.mat.int);if(i.mat.front)b.push('Front material: '+i.mat.front);
+ if(i.tmpl.case&&i.tmpl.case!==room.mats.case)b.push('Case: '+i.tmpl.case);if(i.tmpl.doors&&i.tmpl.doors!==room.mats.doors)b.push('Doors: '+i.tmpl.doors);
+ if(i.finInt&&(i.doors.length||i.nDrw))b.push('Finished interior');if(i.qty>1)b.push('Qty '+i.qty);if(i.notes)b.push(i.notes);
+ return b.join(' · ');}
+const CAB_COLS=[{h:'No.',w:'5%'},{h:'Cabinet',w:'19%'},{h:'W',w:'6%'},{h:'H',w:'6%'},{h:'D',w:'6%'},{h:'Fronts &amp; interior',w:'22%'},{h:'Hardware',w:'17%'},{h:'Notes / exceptions',w:'19%'}];
+function cabRow(i,room){return `<tr><td class="no">${esc(i.label)}</td><td><b>${esc(i.name)}</b>${i.desc&&i.desc!==i.name?`<span class="moz">${esc(i.desc)}</span>`:''}</td><td class="n">${fi(i.W)}</td><td class="n">${fi(i.H)}</td><td class="n">${fi(i.D)}</td><td>${esc(cabFronts(i))}</td><td>${esc(cabHw(i))}</td><td>${esc(cabNotes(i,room))}</td></tr>`;}
+const PART_COLS=[{h:'ID',w:'6%'},{h:'Part',w:'26%'},{h:'Size W × H × D',w:'22%'},{h:'Qty',w:'6%'},{h:'Location',w:'14%'},{h:'Notes',w:'26%'}];
+function partRow(i,room){return `<tr><td class="no">${esc(i.label)}</td><td><b>${esc(i.name)}</b>${i.desc&&i.desc!==i.name?`<span class="moz">${esc(i.desc)}</span>`:''}</td><td class="n">${fi(i.W)} × ${fi(i.H)} × ${fi(i.D)}</td><td class="n">${i.qty}</td><td>${i.pl?esc(wallLabel(room,{w:i.pl.w,s:i.pl.s||1})):'—'}</td><td>${esc(cabNotes(i,room))}</td></tr>`;}
+
+function buildSheets(){
+ if(S.building)return;S.building=true;
+ const host=$('sheets');host.innerHTML='';SHEETS=[];
+ const rooms=selRooms();
+ if(!S.job||!rooms.length){host.innerHTML=S.job?'<div class="empty">Marque pelo menos um cômodo no passo 1.</div>':'<div class="empty"><b>Nenhum job carregado.</b><br>No passo 1, clique em "Ou selecionar a pasta do job" e escolha a pasta do job em C:\\Mozaik\\Jobs. As folhas aparecem aqui.</div>';S.building=false;return;}
+ const I=S.info;const P=paper();const letter=I.paper==='letter';
+ const caW=P.w-(letter?32:44)-(letter?184:232)-(letter?24:36)-4,caH=P.h-(letter?32:44)-(letter?20:32)-4;
+ if(S.tab&&S.tab!=='sd'){try{packageBuild(S.tab,rooms,{caW,caH,letter});}finally{finishSheets(letter);}return;}
+ /* cover */
+ newSheet('Cover sheet','Shop drawings','',`<div class="cover"><div class="cv-img">${S.renderUrl?`<img src="${S.renderUrl}" alt="">`:'<div class="ph">Sem imagem de capa.<br>Escolha uma renderização do job em “Imagem da capa”.</div>'}</div>
+  <div class="cv-side"><div class="cv-k">Shop drawings · ${esc(I.revNote||'')}</div><h1>${esc(I.project)}</h1>
+  <div class="who">${esc(I.client)}${I.client&&I.address?'<br>':''}${esc(I.address)}</div>
+  <dl class="cv-dl"><dt>Job no.</dt><dd>${esc(I.jobNo)||'—'}</dd><dt>Date</dt><dd>${esc(fmtDate(I.date))}</dd><dt>Revision</dt><dd>${esc(I.rev)}</dd><dt>Rooms</dt><dd>${rooms.map(r=>esc(r.name)).join(', ')}</dd></dl>
+  <div class="cv-idx"><b>Sheet index</b><ol class="idx"></ol></div></div></div>`);
+ /* specifications */
+ const specRows=[];let sec='';const tbdList=[];
+ FIELDS.forEach(f=>{if(f.sec){sec=f.sec;return;}if(!rooms.some(r=>shown(r,f)))return;
+  const vals=rooms.map(r=>shown(r,f)?valOf(r,f).trim():null);
+  if(f.k==='other'&&vals.every(v=>!v))return;
+  rooms.forEach((r,ix)=>{if(vals[ix]==='')tbdList.push((rooms.length>1?r.name+' — ':'')+f.l);});
+  if(sec){specRows.push(`<tr class="sec"><td colspan="${rooms.length+1}">${esc(sec)}</td></tr>`);sec='';}
+  const same=rooms.length>1&&vals.every(v=>v===vals[0]);
+  specRows.push(`<tr><td class="k">${esc(f.l)}</td>${same?`<td colspan="${rooms.length}">${cell(vals[0])}${vals[0]?' <span class="moz" style="display:inline">· all rooms</span>':''}</td>`:vals.map(v=>`<td>${v===null?'<span class="moz">n/a</span>':cell(v)}</td>`).join('')}</tr>`);});
+ const specCols=[{h:'Item',w:rooms.length>2?'22%':'30%'}].concat(rooms.map(r=>({h:esc(r.name),w:((rooms.length>2?78:70)/rooms.length)+'%'})));
+ const notes=(STD.notes||'').split('\n').map(s=>s.trim()).filter(Boolean);
+ const maxT=letter?8:14;
+ const right=`<div style="display:flex;flex-direction:column;gap:12px;min-height:0">
+  <div class="notes"><div class="st-h">General notes</div><ol>${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ol></div>
+  ${tbdList.length?`<div class="confirm"><div class="st-h" style="color:#b42318">Items to confirm before fabrication (${tbdList.length})</div><ul>${tbdList.slice(0,maxT).map(t=>`<li>${esc(t)}</li>`).join('')}${tbdList.length>maxT?`<li>…and ${tbdList.length-maxT} more marked TBD in the table</li>`:''}</ul></div>`:''}
+  <div class="apprbig"><div class="st-h">Client approval</div><p>Review every sheet. Approval confirms dimensions, door styles, finishes and hardware as specified.</p>
+   <div class="bx"><span>Approved</span><span>Approved as noted</span><span>Revise &amp; resubmit</span></div>
+   <div class="sig"><div><span>Client signature</span></div><div><span>Date</span></div></div><div style="height:6px"></div></div></div>`;
+ let sh=newSheet('Specifications','Materials · finishes · hardware','',`<div class="cols2"><div class="region" id="rg"></div>${right}</div>`);
+ const contRegion=(title,sub,scale)=>()=>{const s=newSheet(title,sub,scale,'<div class="region"></div>');return s.querySelector('.region');};
+ flow([{title:'Specifications',cols:specCols,rows:specRows}],sh.querySelector('#rg'),contRegion('Specifications','continued',''));
+ sh.querySelector('#rg').removeAttribute('id');
+ /* hardware schedule */
+ const hw=[];const addHw=(cat,k,item,qtys)=>{hw.push({cat,k,item,qtys});};
+ const sumBy=(fn)=>{const m={};rooms.forEach((r,ix)=>r.items.forEach(i=>{const o=fn(i,r);for(const key in o){m[key]=m[key]||rooms.map(()=>0);m[key][ix]+=o[key]*(i.qty||1);}}));return m;};
+ const hm=sumBy(i=>i.hinges);Object.keys(hm).sort().forEach(k=>{addHw('Hinges','hinge',k,hm[k]);addHw('Hinge plates','hinge',k+' — mounting plate',hm[k]);});
+ const sm=sumBy(i=>i.slides);Object.keys(sm).sort().forEach(k=>{const [g,len]=k.split('|');addHw('Drawer glides','glide',g+' — '+len+'" (pairs)',sm[k]);});
+ const pm=sumBy(i=>i.pulls?{[i.pullName||'Pull']:i.pulls}:{});Object.keys(pm).sort().forEach(k=>addHw('Pulls & knobs','pull',k,pm[k]));
+ const pin=sumBy((i,r)=>i.adj?{[i.ov.pins||r.set.pins||'Shelf pin']:i.adj*4}:{});Object.keys(pin).forEach(k=>addHw('Shelf pins','pins',k,pin[k]));
+ const lt=sumBy((i,r)=>i.lights?{[r.set.linear||'Linear light']:i.lights}:{});Object.keys(lt).forEach(k=>addHw('Lighting','light',k,lt[k]));
+ const ro=sumBy((i,r)=>i.ro?{[[r.set.roTray,r.set.roGuide].filter(Boolean).join(' · ')||'Roll-out tray']:i.ro}:{});Object.keys(ro).forEach(k=>addHw('Roll-out trays','ro',k,ro[k]));
+ const rod=sumBy((i,r)=>i.rod?{[r.set.rod||'Closet rod']:i.rod}:{});Object.keys(rod).forEach(k=>addHw('Closet rods','rod',k,rod[k]));
+ const hwCols=[{h:'Category',w:'12%'},{h:'Mozaik item',w:'22%'},{h:'Specified as',w:(rooms.length>3?26:34)+'%'}].concat(rooms.map(r=>({h:esc(r.name),w:((rooms.length>3?32:24)/rooms.length)+'%'})),[{h:'Total',w:'8%'}]);
+ const hwRows=hw.map(x=>{const base=x.item.replace(/ — mounting plate$/,'').replace(/ — \d+" \(pairs\)$/,'');const spec=x.cat==='Hinge plates'?'Matching mounting plate':specFor(x.k,base);
+  const tot=x.qtys.reduce((a,v)=>a+v,0);
+  return `<tr><td class="k">${esc(x.cat)}</td><td>${esc(x.item)}</td><td>${x.cat==='Hinge plates'?esc(spec):cell(spec)}</td>${x.qtys.map(q=>`<td class="n">${q||'—'}</td>`).join('')}<td class="n"><b>${tot}</b></td></tr>`;});
+ if(!hwRows.length)hwRows.push(`<tr><td colspan="${rooms.length+4}">No hardware found in the selected rooms.</td></tr>`);
+ sh=newSheet('Hardware schedule','Quantities from the Mozaik design','','<div class="region"></div><p class="moz" style="margin:0">Quantities are per the design. Order extra hinges, glides and pulls for attic stock as needed.</p>');
+ flow([{title:'Hardware schedule',cols:hwCols,rows:hwRows}],sh.querySelector('.region'),contRegion('Hardware schedule','continued',''));
+ /* rooms */
+ rooms.forEach(r=>{
+  const cabs=r.items.filter(i=>i.num),parts=r.items.filter(i=>!i.num);
+  const blocks=[];if(cabs.length)blocks.push({title:'Cabinet schedule',cols:CAB_COLS,rows:cabs.map(i=>cabRow(i,r))});
+  const prow=parts.map(i=>partRow(i,r)).concat(r.toes.map(t=>`<tr><td class="no">${esc(t.label)}</td><td><b>Toe skin</b></td><td class="n">${fi(t.L)} × ${fi(t.W)}</td><td class="n">1</td><td>—</td><td></td></tr>`));
+  if(prow.length)blocks.push({title:'Panels, fillers & loose parts',cols:PART_COLS,rows:prow});
+  const pw=Math.floor(caW*0.42),ph=caH-46;
+  const side=r.layout.walls.length?plan(r,pw,ph):null;
+  const stack=side?plan(r,caW,Math.floor(caH*0.36)):null;
+  let useStack=stack&&stack.ppm>side.ppm*1.15;
+  const vtOf=pv=>`<div class="vt"><span class="vn">1</span><div><b>Plan — ${esc(r.name)}</b><small>Scale ${esc(pv.scale)}</small></div></div>`;
+  if(useStack){
+   // plan across the top; if the schedule then spills onto another sheet, fall back to plan beside the schedule
+   const before=SHEETS.length;
+   const s=newSheet('Plan & cabinet schedule',r.name,stack.scale,`<div class="view" style="flex:none"><div class="dwg">${stack.svg}</div>${vtOf(stack)}</div><div class="region"></div>`);
+   flow(blocks,s.querySelector('.region'),contRegion('Cabinet schedule',r.name+' — continued',''));
+   if(SHEETS.length-before>1){SHEETS.splice(before).forEach(x=>x.wrap.remove());useStack=false;}
+  }
+  const pv=side,vt=pv?vtOf(pv):'';
+  if(useStack){}
+  else if(pv){
+   const s=newSheet('Plan & cabinet schedule',r.name,pv.scale,`<div class="cols2" style="grid-template-columns:${pw}px minmax(0,1fr)"><div class="view"><div class="dwg">${pv.svg}</div>${vt}</div><div class="region"></div></div>`);
+   flow(blocks,s.querySelector('.region'),contRegion('Cabinet schedule',r.name+' — continued',''));
+  }else{
+   const s=newSheet('Cabinet schedule',r.name,'','<div class="region"></div>');
+   flow(blocks,s.querySelector('.region'),contRegion('Cabinet schedule',r.name+' — continued',''));
+  }
+  const islandsDone=new Set();
+  wallSides(r).forEach((ws,wi)=>{
+   const wl=r.layout.walls.find(x=>x.n===ws.w);
+   if(isIslandWall(wl)){if(islandsDone.has(ws.w))return;islandsDone.add(ws.w);
+    const gap=14,labH=44,endW=Math.floor(caW*0.3),wideW=caW-endW-gap,cellH=Math.floor((caH-gap)/2)-labH;
+    const keyW=letter?220:300,iw=caW-keyW-18,ih=Math.floor((caH-gap)/2)-labH;
+    const D=islandSheetsData(r,ws.w,{wide:{w:wideW,h:cellH},end:{w:endW,h:cellH},top:{w:keyW,h:Math.floor(caH*0.42)}});if(!D)return;
+    const vw=(n,svg,title,sub)=>`<div class="view"><div class="dwg">${svg}</div><div class="vt"><span class="vn">${n}</span><div><b>${esc(title)}</b><small>${esc(sub)}</small></div></div></div>`;
+    newSheet('Island — elevations',r.name+' — Island',D.scale,`<div style="display:grid;grid-template-columns:${wideW}px ${endW}px;grid-template-rows:repeat(2,minmax(0,1fr));gap:${gap}px;flex:1;min-height:0">
+     ${vw(1,D.front.svg,'Island — front (side 1)','Scale '+D.scale+' · cabinet numbers match the schedule')}${vw(3,D.left.svg,'Island — left end','Scale '+D.scale)}
+     ${vw(2,D.back.svg,'Island — back (side 2)','Scale '+D.scale)}${vw(4,D.right.svg,'Island — right end','Scale '+D.scale)}</div>`);
+    const v1=render3D(r,ws,iw,ih,{island:true,dir:[-0.55,1,0.5]}),v2=render3D(r,ws,iw,ih,{island:true,dir:[0.55,-1,0.5]});
+    const nums=D.I.its.filter(i=>i.num).map(i=>`<li><span>${esc(i.label)}</span>${esc(i.name)}<small>${fi(i.W)} × ${fi(i.H)} × ${fi(i.D)}</small></li>`).join('');
+    const img=(v,n,t)=>v?`<div class="view"><div class="dwg"><img class="img3d" src="${v.url}" alt="" style="width:${iw}px;height:${ih}px"></div><div class="vt"><span class="vn">${n}</span><div><b>${t}</b><small>Not to scale · colors approximate, final per approved samples</small></div></div></div>`:'';
+    newSheet('Island — 3D views & plan',r.name+' — Island','As noted',`<div style="display:grid;grid-template-columns:${iw}px minmax(0,1fr);gap:18px;flex:1;min-height:0">
+     <div style="display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:${gap}px;min-height:0">${img(v1,6,'3D — front and left end')}${img(v2,7,'3D — back and right end')}</div>
+     <div style="display:flex;flex-direction:column;gap:14px;min-height:0">${vw(5,D.top.svg,'Island — plan','Scale '+D.topScale)}${nums?`<div class="key3d"><div class="st-h">Cabinet key</div><ol>${nums}</ol></div>`:''}</div></div>`);
+    // section through the middle of the island, with enlarged details of the back overhang and the toe / end-panel scribe
+    {const I=D.I;let xa=1e9,xb=-1e9;I.meshes.forEach(m=>m.verts.forEach(v=>{xa=Math.min(xa,v[0]);xb=Math.max(xb,v[0]);}));const cut=(xa+xb)/2;
+     const secW=Math.floor(caW*0.5),detW=caW-secW-gap,detH=Math.floor((caH-gap)/2)-labH;
+     const full=islandSection(I,cut,secW,caH-labH-20);
+     if(full){const bp=Math.min(...I.side2.filter(i=>i.pl.e<100).map(i=>itemRange(I,i).y0).filter(isFinite));
+      const mB=isFinite(bp)?{u0:-bp-90,u1:full.u1+30,w0:full.w1-230,w1:full.w1+30,l:'B'}:null;
+      const mC={u0:full.u0-30,u1:full.u0+230,w0:Math.min(full.w0,0)-30,w1:190,l:'C'};
+      const sec=islandSection(I,cut,secW,caH-labH-20,null,[mB,mC].filter(Boolean));
+      const dB=mB?islandSection(I,cut,detW,detH,mB):null,dC=islandSection(I,cut,detW,detH,mC);
+      newSheet('Island — section & details',r.name+' — Island','As noted',`<div style="display:grid;grid-template-columns:${secW}px ${detW}px;gap:${gap}px;flex:1;min-height:0">
+       ${vw('A',sec.svg,'Section A — through the island','Scale '+sec.scale+' · cut at the middle, looking at the right end panel')}
+       <div style="display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:${gap}px;min-height:0">${dB?vw('B',dB.svg,'Detail B — back overhang','Scale '+dB.scale+' · apron, frame and cover panel'):''}${dC?vw('C',dC.svg,'Detail C — toe kick and end panel','Scale '+dC.scale+' · end panel below floor line is scribe'):''}</div></div>`);}}
+    return;}
+   const lab=wallLabel(r,ws);
+   const onWall=r.items.filter(i=>i.pl&&i.pl.w===ws.w&&(i.pl.s||1)===ws.s);
+   const keyRows=onWall.filter(i=>i.num).map(i=>cabRow(i,r));
+   const ev=elevation(r,ws,caW,Math.floor(caH*(keyRows.length>8?0.58:0.66))-40);if(!ev)return;
+   const s=newSheet('Elevation',r.name+' — '+lab,ev.scale,`<div class="view" style="flex:none"><div class="dwg">${ev.svg}</div><div class="vt"><span class="vn">${wi+2}</span><div><b>Elevation — ${esc(lab)}</b><small>Scale ${esc(ev.scale)} · cabinet numbers match the schedule</small></div></div></div><div class="region"></div>`);
+   if(keyRows.length)flow([{title:'Cabinets on this wall',cols:CAB_COLS,rows:keyRows}],s.querySelector('.region'),contRegion('Elevation',r.name+' — '+lab+' — continued',ev.scale));
+   // 3D view of the same wall
+   const keyW=letter?190:250,iw=caW-keyW-16,ih=caH-40;
+   const v3=render3D(r,ws,iw,ih);
+   if(v3){const nums=onWall.filter(i=>i.num).map(i=>`<li><span>${esc(i.label)}</span>${esc(i.name)}<small>${fi(i.W)} × ${fi(i.H)} × ${fi(i.D)}</small></li>`).join('');
+    newSheet('3D view',r.name+' — '+lab,'Not to scale',`<div class="v3row" style="grid-template-columns:${iw}px minmax(0,1fr)"><div class="view"><div class="dwg"><img class="img3d" src="${v3.url}" alt="" style="width:${iw}px;height:${ih}px"></div><div class="vt"><span class="vn">${wi+2}</span><div><b>3D view — ${esc(lab)}</b><small>Not to scale · colors approximate, final per approved samples</small></div></div></div>
+     <div class="key3d"><div class="st-h">Cabinet key</div><ol>${nums}</ol></div></div>`);}
+  });
+  // cross sections
+  const picks=sectionPicks(r);
+  if(picks.length){const cols=3,rowsN=picks.length>3?2:1;const cw=Math.floor((caW-(cols-1)*14)/cols),ch=Math.floor((caH-(rowsN-1)*14)/rowsN)-74;
+   const cells=picks.map((it,ix)=>{const sx=section(r,it,cw,ch);if(!sx)return'';const L=String.fromCharCode(65+ix);
+    return `<div class="view secv"><div class="dwg">${sx.svg}</div><div class="vt"><span class="vn">${L}</span><div><b>Section ${L} — #${esc(it.label)} ${esc(it.name)}</b><small>Scale ${esc(sx.scale)} · cut at center of cabinet</small></div></div><p class="sec-lg">${esc(sx.legend)}</p></div>`;}).join('');
+   newSheet('Cross sections',r.name,'As noted',`<div class="secgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr));grid-template-rows:repeat(${rowsN},minmax(0,1fr))">${cells}</div><p class="moz" style="margin:0">Panel thicknesses per material templates (${esc([r.mats.case,r.mats.dbox].filter(Boolean).join(', '))}). Field verify before fabrication.</p>`);}
+  // renderings from the Mozaik job
+  const rr=(S.roomRenders[r.id]||[]).filter(Boolean);
+  if(rr.length)newSheet('Renderings',r.name,'Not to scale',`<div class="rgrid" style="grid-template-rows:repeat(${rr.length},minmax(0,1fr))">${rr.map(u=>`<div class="rimg"><img src="${u}" alt=""></div>`).join('')}</div><p class="moz" style="margin:0">Renderings for design intent only. Colors and textures are approximate; dimensions per the drawings.</p>`);
+ });
+ finishSheets(letter);}
+function finishSheets(letter){
+ const n=SHEETS.length,pre=tabOf(S.tab).pre;
+ SHEETS.forEach((s,ix)=>{s.sh.querySelector('.sn').textContent=pre+'-'+(ix+1);s.sh.querySelector('.sof').textContent='of '+n;});
+ const idx=SHEETS[0]&&SHEETS[0].sh.querySelector('.idx');
+ if(idx)idx.innerHTML=SHEETS.map((s,ix)=>`<li><span>${pre}-${ix+1}</span>${esc(s.title)}${s.sub&&ix>0?' — '+esc(s.sub):''}</li>`).join('');
+ fitPreviews();
+ $('sheetsNote').textContent=`${tabOf(S.tab).pt}: ${n} folhas · ${letter?'Letter 11 × 8.5':'Tabloid 17 × 11'}. As escalas valem quando impresso nesse tamanho, sem "ajustar à página".`;
+ S.building=false;}
+let buildTimer=0;
+function scheduleBuild(ms){clearTimeout(buildTimer);buildTimer=setTimeout(()=>{try{buildSheets();}catch(e){console.error(e);S.building=false;status('Erro ao montar as folhas: '+e.message);}},ms==null?500:ms);}
+
+/* ================= shop package: one job, five documents ================= */
+const TABS=[{k:'sd',pre:'SD',pt:'Shop drawings',en:'Shop drawings',file:'Shop-Drawings'},{k:'cut',pre:'CP',pt:'Plano de corte',en:'Cut plan',file:'Cut-Plan'},
+ {k:'asm',pre:'AS',pt:'Plano de montagem',en:'Assembly plan',file:'Assembly-Plan'},{k:'inst',pre:'IN',pt:'Instalação',en:'Installation',file:'Install-Plan'},{k:'chk',pre:'QC',pt:'Checagem',en:'Checklists',file:'Checklists'}];
+const CHECKLIST_URL='https://claude.ai/artifact/PHFWQ2DDRBh7wHqb6eohZE';
+const tr=(pt,en)=>STD.shopLang==='en'?en:pt;
+const tabOf=k=>TABS.find(t=>t.k===k)||TABS[0];
+const sec=(cols,label)=>`<tr class="sec"><td colspan="${cols}">${esc(label)}</td></tr>`;
+const BOX='<span class="cbx"></span>';
+const roomByIdx=n=>S.job.rooms.find(r=>r.idx===n);
+const itemByCab=(room,cab)=>room&&room.items.find(i=>String(i.label)===String(cab));
+function packageBuild(tab,rooms,C){
+ if(tab==='cut')buildCut(rooms,C);else if(tab==='asm')buildAsm(rooms,C);else if(tab==='inst')buildInst(rooms,C);else if(tab==='chk')buildChk(rooms,C);}
+const contOf=(title,sub)=>()=>{const s=newSheet(title,sub,'','<div class="region"></div>');return s.querySelector('.region');};
+
+/* ---------- Mozaik optimizer files (.opt): every part to cut, per material ---------- */
+function parseOpt(text){const r=xmlRoot(text);if(!r||r.tagName!=='OptimizeMaterial')return null;
+ const mat={name:at(r,'DisplayName')||at(r,'Abbr'),T:nm(at(r,'Thickness')),W:nm(at(r,'Width')),L:nm(at(r,'Length')),grain:at(r,'HasGrain')==='True',trim:nm(at(r,'WidthTrim')),parts:[]};
+ kids(r,'OptimizePart').forEach(p=>{const q=nm(at(p,'Quan'));if(q<=0)return;const assy=at(p,'AssyNo');const m=assy.match(/^R(\d+)([CN])(\d+)/i);
+  const sides=[];const sh=kid(p,'Shape');if(sh)kids(sh,'ShapePoint').forEach(sp=>{if(nm(at(sp,'EBand'))>0&&at(sp,'SideName'))sides.push(at(sp,'SideName'));});
+  const eb=at(p,'EdgeBand');
+  mat.parts.push({name:at(p,'Name').trim(),w:nm(at(p,'Width')),l:nm(at(p,'Length')),q,assy,room:m?+m[1]:0,cab:m?(m[2].toUpperCase()==='N'?'N':'')+m[3]:'',comment:at(p,'Comment'),sides:uniq(sides),eb:/^none$/i.test(eb)?'':eb});});
+ return mat;}
+const SIDE_PT={Front:'Frente',Back:'Trás',Left:'Esq.',Right:'Dir.',Top:'Topo',Bottom:'Baixo'};
+function bandText(p){if(p.sides.length)return p.sides.map(s=>tr(SIDE_PT[s]||s,s)).join(', ');
+ if(!p.eb)return'—';const n=(p.eb.split('-').pop()||'').split(',').filter(v=>v.trim()&&v.trim()!=='0').length;return n?tr(n+' lado'+(n>1?'s':''),n+' edge'+(n>1?'s':''))+' ('+p.eb.split('-')[0]+')':esc(p.eb);}
+const matKey=s=>String(s||'').toLowerCase().replace(/\d+(\.\d+)?\s*mm/g,'').replace(/[^a-z0-9]+/g,'');
+
+/* ---------- CNC G-code: the real sheets ---------- */
+function parseNC(text,name){
+ let x=0,y=0,z=0,mode=0,inch=false;const segs=[];
+ const dm=text.match(/diameter\s*=\s*([\d.]+)\s*mm/i)||text.match(/\bD\s*=\s*([\d.]+)\s*mm/i);
+ text.split(/\r?\n/).forEach(ln=>{const s=ln.replace(/\(.*?\)/g,'').replace(/;.*/,'').toUpperCase();if(!s.trim())return;
+  if(/G20(?!\d)/.test(s))inch=true;if(/G21(?!\d)/.test(s))inch=false;
+  const gs=s.match(/G0*([0-3])(?!\d)/g);if(gs)gs.forEach(g=>{mode=+g.replace(/^G0*/,'')||0;});
+  const v=k=>{const m=s.match(new RegExp(k+'\\s*(-?\\d*\\.?\\d+)'));return m?+m[1]*(inch?25.4:1):null;};
+  const nx=v('X'),ny=v('Y'),nz=v('Z');const X1=nx==null?x:nx,Y1=ny==null?y:ny,Z1=nz==null?z:nz;
+  if(mode>=1&&(X1!==x||Y1!==y||Z1!==z))segs.push([x,y,z,X1,Y1,Z1]);x=X1;y=Y1;z=Z1;});
+ const sm=name.match(/sheet\s*(\d+)/i);
+ return{name,segs,tool:dm?+dm[1]:9.525,no:sm?+sm[1]:0};}
+// rasterize the through-cuts and find the pieces they free; match each piece to a part from the cut list
+function ncLayout(nc,mats){
+ const mk=matKey(nc.name);let mat=mats.find(m=>mk.includes(matKey(m.name)))||null;
+ let zmin=1e9;nc.segs.forEach(q=>{if(q[5]<zmin)zmin=q[5];});const thr=nc.segs.filter(s=>s[5]<=zmin+0.3&&s[2]<=zmin+0.3);
+ let mx=0,my=0;nc.segs.forEach(s=>{mx=Math.max(mx,s[0],s[3]);my=Math.max(my,s[1],s[4]);});
+ let SW=mat?mat.W:mx,SL=mat?mat.L:my;if(mat&&mx>SW+25&&my<=SW+25){const t=SW;SW=SL;SL=t;}
+ SW=Math.max(SW,mx),SL=Math.max(SL,my);
+ const res=2,nx=Math.ceil(SW/res)+1,ny=Math.ceil(SL/res)+1,g=new Uint8Array(nx*ny),r=nc.tool/2;
+ thr.forEach(s=>{const x0=s[0],y0=s[1],x1=s[3],y1=s[4],dx=x1-x0,dy=y1-y0,ll=dx*dx+dy*dy;
+  const ia=Math.max(0,Math.floor((Math.min(x0,x1)-r)/res)),ib=Math.min(nx-1,Math.ceil((Math.max(x0,x1)+r)/res)),ja=Math.max(0,Math.floor((Math.min(y0,y1)-r)/res)),jb=Math.min(ny-1,Math.ceil((Math.max(y0,y1)+r)/res));
+  for(let j=ja;j<=jb;j++)for(let i=ia;i<=ib;i++){const px=i*res,py=j*res;let t=ll?((px-x0)*dx+(py-y0)*dy)/ll:0;t=t<0?0:t>1?1:t;const ex=x0+t*dx-px,ey=y0+t*dy-py;if(ex*ex+ey*ey<=r*r)g[j*nx+i]=1;}});
+ const lab=new Int32Array(nx*ny).fill(-1);const comps=[];const st=[];
+ for(let k=0;k<nx*ny;k++){if(g[k]||lab[k]>=0)continue;const id=comps.length;const c={n:0,i0:1e9,i1:-1,j0:1e9,j1:-1,edge:false};lab[k]=id;st.push(k);
+  while(st.length){const q=st.pop();const i=q%nx,j=(q-i)/nx;c.n++;if(i<c.i0)c.i0=i;if(i>c.i1)c.i1=i;if(j<c.j0)c.j0=j;if(j>c.j1)c.j1=j;if(i===0||j===0||i===nx-1||j===ny-1)c.edge=true;
+   const nb=[i>0?q-1:-1,i<nx-1?q+1:-1,j>0?q-nx:-1,j<ny-1?q+nx:-1];for(const b of nb)if(b>=0&&!g[b]&&lab[b]<0){lab[b]=id;st.push(b);}}
+  comps.push(c);}
+ const pool=[];if(mat)mat.parts.forEach(p=>{for(let k=0;k<p.q;k++)pool.push({p,used:false});});
+ const pieces=comps.filter(c=>c.n*res*res>=35*35).map(c=>{const w=(c.i1-c.i0+1)*res,l=(c.j1-c.j0+1)*res;return{x0:c.i0*res,x1:(c.i1+1)*res,y0:c.j0*res,y1:(c.j1+1)*res,w,l,fill:c.n/((c.i1-c.i0+1)*(c.j1-c.j0+1)),edge:c.edge};});
+ pieces.forEach(pc=>{if(pc.edge&&pc.fill<0.97&&pc.w*pc.l>SW*SL*0.25){pc.scrap=true;return;}
+  let best=null,bd=1e9;for(const c of pool){if(c.used)continue;const d1=Math.abs(c.p.w-pc.w)+Math.abs(c.p.l-pc.l),d2=Math.abs(c.p.w-pc.l)+Math.abs(c.p.l-pc.w);const d=Math.min(d1,d2);if(d<bd){bd=d;best=c;}}
+  if(best&&bd<=10){best.used=true;pc.part=best.p;}});
+ return{mat,SW,SL,pieces,segs:nc.segs,thr};}
+function ncSvg(L,availW,availH){
+ // long side of the sheet runs across the page; origin X0 Y0 at the lower left
+ const pad=34,k=Math.min((availW-pad*2)/L.SL,(availH-pad*2)/L.SW);const W=L.SL*k+pad*2,H=L.SW*k+pad*2;
+ const P=(x,y)=>[pad+y*k,H-pad-x*k];
+ let o=svgOpen(W,H)+`<rect x="0" y="0" width="${N(W)}" height="${N(H)}" fill="#ffffff"/>`;
+ const[a,b]=P(0,0);o+=`<rect x="${N(pad)}" y="${N(pad)}" width="${N(L.SL*k)}" height="${N(L.SW*k)}" fill="#f4efe4" stroke="#141414" stroke-width="1.2"/>`;
+ L.pieces.forEach((pc,ix)=>{const p0=P(pc.x1,pc.y0);const fill=pc.scrap?'#ffffff':pc.part?'#e3cfa8':'#efe7d6';
+  o+=`<rect x="${N(p0[0])}" y="${N(p0[1])}" width="${N((pc.y1-pc.y0)*k)}" height="${N((pc.x1-pc.x0)*k)}" fill="${fill}" stroke="none"/>`;});
+ L.segs.forEach(s=>{const A=P(s[0],s[1]),B=P(s[3],s[4]);const through=L.thr.includes(s);
+  o+=`<line x1="${N(A[0])}" y1="${N(A[1])}" x2="${N(B[0])}" y2="${N(B[1])}" stroke="${through?'#1d1d1d':'#9a9a9a'}" stroke-width="${through?0.9:0.6}"${through?'':' stroke-dasharray="3 2"'}/>`;});
+ let n=0;L.pieces.forEach(pc=>{if(pc.scrap)return;pc.no=++n;const cx=pad+(pc.y0+pc.y1)/2*k,cy=H-pad-(pc.x0+pc.x1)/2*k;const big=(pc.y1-pc.y0)*k>46&&(pc.x1-pc.x0)*k>30;
+  o+=`<circle cx="${N(cx)}" cy="${N(cy-(big?6:0))}" r="9" fill="#ffffff" stroke="#141414" stroke-width="1"/>`+txt(cx,cy-(big?6:0)+0.5,String(pc.no),{fs:9,w:700});
+  if(big)o+=txt(cx,cy+12,`${frac(Math.max(pc.w,pc.l))} × ${frac(Math.min(pc.w,pc.l))}`,{fs:8,fill:'#333'});});
+ o+=`<circle cx="${N(a)}" cy="${N(b)}" r="4" fill="#b42318"/>`+txt(a+6,b+14,'X0 Y0',{fs:8,a:'start',fill:'#b42318',w:700});
+ o+=dimH(pad,pad+L.SL*k,H-pad+20,frac(L.SL),H-pad+3)+dimV(pad-18,pad,H-pad,frac(L.SW),pad-3);
+ return{svg:o+'</svg>',w:W,h:H};}
+
+function buildCut(rooms,C){
+ const opts=S.job.opts||[];const ids=new Set(rooms.map(r=>r.idx));
+ if(!opts.length){newSheet(tr('Plano de corte','Cut plan'),'', '',`<div class="empty" style="margin:20px">${tr('Este job não trouxe arquivos .opt do Mozaik. Carregue a pasta do job (ela tem os arquivos de material .opt) para montar a lista de corte.','No Mozaik .opt files came with this job. Load the job folder (it holds the .opt material files) to build the cut list.')}</div>`);return;}
+ const mats=opts.map(m=>Object.assign({},m,{parts:m.parts.filter(p=>!p.room||ids.has(p.room))})).filter(m=>m.parts.length);
+ const ncs=(S.nc||[]).map(nc=>Object.assign(ncLayout(nc,mats),{nc}));
+ // summary
+ const yieldF=0.8;
+ const rows=mats.map(m=>{const area=m.parts.reduce((a,p)=>a+p.w*p.l*p.q,0);const sheetA=Math.max(1,(m.W-2*m.trim)*(m.L-2*m.trim));const est=Math.max(1,Math.ceil(area/(sheetA*yieldF)));
+  const got=ncs.filter(x=>x.mat&&x.mat.name===m.name).length;const q=m.parts.reduce((a,p)=>a+p.q,0);
+  return `<tr><td><b>${esc(m.name)}</b></td><td class="n">${fi(m.T)}</td><td class="n">${frac(m.W)} × ${frac(m.L)}</td><td class="n">${q}</td><td class="n">${(area/92903).toFixed(1)}</td><td class="n">${est}</td><td class="n">${got||'—'}</td><td>${m.grain?tr('Sim','Yes'):tr('Não','No')}</td></tr>`;});
+ const cols=[{h:tr('Material','Material'),w:'30%'},{h:tr('Espessura','Thickness'),w:'9%'},{h:tr('Chapa','Sheet'),w:'14%'},{h:tr('Peças','Parts'),w:'7%'},{h:'ft²',w:'8%'},{h:tr('Chapas (estim.)','Sheets (est.)'),w:'11%'},{h:tr('Chapas no G-code','Sheets in G-code'),w:'12%'},{h:tr('Veio','Grain'),w:'9%'}];
+ const s=newSheet(tr('Plano de corte — resumo','Cut plan — summary'),tr('Materiais e chapas','Materials and sheets'),'',`<div class="region"></div><p class="moz" style="margin:0">${tr('Chapas estimadas pela área das peças com 80% de aproveitamento. A quantidade real é a do nesting da CNC. Peças e medidas vêm dos arquivos .opt do Mozaik.','Sheet counts are estimated from part area at 80% yield; the real count comes from the CNC nesting. Parts and sizes come from the Mozaik .opt files.')}</p>`);
+ flow([{title:tr('Materiais','Materials'),cols,rows}],s.querySelector('.region'),contOf(tr('Plano de corte — resumo','Cut plan — summary'),tr('continuação','continued')));
+ // cut list per material, grouped by cabinet
+ const lc=[{h:tr('Gab.','Cab.'),w:'7%'},{h:tr('Peça','Part'),w:'25%'},{h:tr('Qtd','Qty'),w:'6%'},{h:tr('Largura','Width'),w:'10%'},{h:tr('Compr.','Length'),w:'10%'},{h:tr('Fita de borda','Edge banding'),w:'18%'},{h:tr('Obs.','Notes'),w:'24%'}];
+ mats.forEach(m=>{const rws=[];let last='';
+  // identical parts of one cabinet become one line with the total quantity
+  const agg=[],ak={};m.parts.forEach(p=>{const k=[p.room,p.cab,p.name,Math.round(p.w*2),Math.round(p.l*2),p.sides.join(','),p.eb,p.comment].join('|');if(ak[k])ak[k].q+=p.q;else{ak[k]=Object.assign({},p);agg.push(ak[k]);}});
+  agg.sort((a,b)=>a.room-b.room||(a.cab.startsWith('N')?1:0)-(b.cab.startsWith('N')?1:0)||parseInt(a.cab.replace('N',''))-parseInt(b.cab.replace('N',''))||a.name.localeCompare(b.name)).forEach(p=>{
+   const room=roomByIdx(p.room),it=itemByCab(room,p.cab);const key=p.room+'|'+p.cab;
+   if(key!==last){last=key;rws.push(sec(7,`${room?room.name:'R'+p.room} — #${p.cab}${it?' '+it.name:''}`));}
+   rws.push(`<tr><td class="no">${esc(p.cab)}</td><td><b>${esc(p.name)}</b></td><td class="n">${p.q}</td><td class="n">${fi(p.w)}</td><td class="n">${fi(p.l)}</td><td>${bandText(p)}</td><td>${esc(p.comment||'')}</td></tr>`);});
+  const sub=`${fi(m.T)} · ${frac(m.W)} × ${frac(m.L)}`;
+  const sh=newSheet(tr('Lista de corte','Cut list')+' — '+m.name,sub,'','<div class="region"></div>');
+  flow([{title:m.name,cols:lc,rows:rws}],sh.querySelector('.region'),contOf(tr('Lista de corte','Cut list')+' — '+m.name,sub+' · '+tr('continuação','continued')));});
+ // sheets from the G-code
+ ncs.sort((a,b)=>a.nc.no-b.nc.no||a.nc.name.localeCompare(b.nc.name)).forEach(L=>{
+  const keyW=C.letter?240:330,dw=C.caW-keyW-18;const d=ncSvg(L,dw,C.caH-40);
+  const pcs=L.pieces.filter(p=>!p.scrap);const matched=pcs.filter(p=>p.part).length;
+  const list=pcs.map(pc=>{const p=pc.part;const room=p&&roomByIdx(p.room);return `<tr><td class="no">${pc.no}</td><td>${p?`<b>#${esc(p.cab)}</b> ${esc(p.name)}`:`<span class="moz">${tr('sem correspondência','no match')}</span>`}</td><td class="n">${frac(Math.max(pc.w,pc.l))} × ${frac(Math.min(pc.w,pc.l))}</td></tr>`;}).join('');
+  newSheet(tr('Chapa','Sheet')+(L.nc.no?' '+L.nc.no:'')+' — '+(L.mat?L.mat.name:L.nc.name),L.nc.name,'NTS',`<div style="display:grid;grid-template-columns:${dw}px minmax(0,1fr);gap:18px;flex:1;min-height:0">
+   <div class="view"><div class="dwg">${d.svg}</div><div class="vt"><span class="vn">1</span><div><b>${esc(L.nc.name)}</b><small>${tr('Desenhado do G-code · linha cheia = corte passante, tracejada = rebaixo/furo','Drawn from the G-code · solid = through cut, dashed = pocket/drill')}</small></div></div></div>
+   <div style="min-height:0;overflow:hidden"><div class="st-h">${tr('Peças nesta chapa','Parts on this sheet')} (${pcs.length})</div><table class="st"><colgroup><col style="width:12%"><col style="width:58%"><col style="width:30%"></colgroup><thead><tr><th>No.</th><th>${tr('Peça','Part')}</th><th>${tr('Medida','Size')}</th></tr></thead><tbody>${list}</tbody></table>
+   <p class="moz" style="margin:8px 0 0">${matched}/${pcs.length} ${tr('identificadas pela medida na lista de corte.','identified by size against the cut list.')}${L.mat?'':' '+tr('Material não encontrado nos .opt.','Material not found in the .opt files.')}</p></div></div>`);});
+ if(!ncs.length)newSheet(tr('Chapas da CNC','CNC sheets'),'','',`<div class="empty" style="margin:20px">${tr('Para desenhar as chapas, carregue os arquivos .nc do job no botão “G-code das chapas”, acima das folhas.','To draw the sheets, load the job’s .nc files with the “Sheet G-code” button above the sheets.')}</div>`);
+}
+
+/* ---------- assembly: one sheet per cabinet ---------- */
+const DRW=/^(DRAWER|DRAWERFRAME|DRAWERPANEL|DRAWERSIDE|DRAWERBACK|DRAWERFRONT|DRAWERBOTTOM|TRAYSIDE|TRAYFRONT|TRAYBACK|TRAYBOTTOM|TRAYFACE)$/,DR=/^(DOOR|DOORFRAME|DOORPANEL)$/;
+function asmScene(room,it){
+ const D=it.D||(it.pl&&it.pl.D)||600,W=it.W||600,H=it.H||800;const map=v=>[v[0],D-v[1],v[2]];
+ const meshes=itemMeshes(room,it,map).concat(pullMeshes(it,map));if(!meshes.length)return null;
+ const groups=[],gk={};
+ meshes.forEach(m=>{let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;m.verts.forEach(v=>{x0=Math.min(x0,v[0]);x1=Math.max(x1,v[0]);y0=Math.min(y0,v[1]);y1=Math.max(y1,v[1]);z0=Math.min(z0,v[2]);z1=Math.max(z1,v[2]);});
+  const c=[(x0+x1)/2,(y0+y1)/2,(z0+z1)/2],d=[x1-x0,y1-y0,z1-z0],C=[W/2,D/2,H/2],S3=[W,D,H];let off=[0,0,0];const T=m.t;
+  if(T==='PULL'||DR.test(T))off=[0,D*0.45,0];else if(DRW.test(T))off=[0,D*0.6,0];
+  else{const ax=d.indexOf(Math.min(...d));const rel=(c[ax]-C[ax])/(S3[ax]/2||1);
+   if(Math.abs(rel)>0.35){const k=Math.max(120,Math.min(420,S3[ax]*0.3));off[ax]=Math.sign(rel)*k;}else if(ax===2)off=[0,D*0.3,0];else off=[0,D*0.18,0];}
+  m.verts=m.verts.map(v=>[v[0]+off[0],v[1]+off[1],v[2]+off[2]]);m.c=[c[0]+off[0],c[1]+off[1],c[2]+off[2]];});
+ // number the distinct parts (same name and size = same number)
+ const parts=[];(it.g||[]).forEach((o,ix)=>{const key=[o.t.toUpperCase(),o.n,Math.round(o.L),Math.round(o.W),Math.round(o.T)].join('|');let p=gk[key];if(!p){p=gk[key]={no:0,o,q:0,mesh:null};parts.push(p);}p.q++;if(!p.mesh)p.mesh=meshes[ix];});
+ const ord=t=>DRW.test(t)?3:DR.test(t)?2:/^(UEND|FEND|FINEXTERIOR|BOTTOM|TOP|STRETCHER|NAILER|UBACK|FBACK)$/.test(t)?0:1;
+ parts.sort((a,b)=>ord(a.o.t.toUpperCase())-ord(b.o.t.toUpperCase())||b.o.L*b.o.W-a.o.L*a.o.W).forEach((p,i)=>p.no=i+1);
+ const marks=parts.filter(p=>p.mesh).map(p=>({label:String(p.no),pt:p.mesh.c}));
+ let U0=1e9,U1=-1e9,Z1=0,D1=-1e9,Y0=1e9;meshes.forEach(pr=>pr.verts.forEach(v=>{U0=Math.min(U0,v[0]);U1=Math.max(U1,v[0]);Z1=Math.max(Z1,v[2]);D1=Math.max(D1,v[1]);Y0=Math.min(Y0,v[1]);}));
+ return{sc:{prims:meshes,marks,U0,U1,Z1,D1,Y0},parts};}
+function asmSteps(it){const T=new Set((it.g||[]).map(o=>o.t.toUpperCase()));const has=re=>[...T].some(t=>re.test(t));const s=[];
+ s.push(tr('Separe as peças pela etiqueta (R#C#) e confira com a lista ao lado.','Pull the parts by label (R#C#) and check them against the list.'));
+ s.push(tr('Monte a caixa: laterais no fundo (piso) e nas travessas/tampo, com cola e parafusos. Confira o esquadro pelas diagonais.','Build the box: sides to the bottom and stretchers/top with glue and screws. Check square by the diagonals.'));
+ if(has(/^(UBACK|FBACK|BACK)$/))s.push(tr('Coloque o fundo (back) e fixe.','Fit the back and fasten it.'));
+ if(has(/^NAILER$/))s.push(tr('Fixe os nailers.','Fasten the nailers.'));
+ if(has(/^(TOE|SLEEPER)$/)||it.toeH)s.push(tr('Monte o rodapé (toe) ou os pés niveladores.','Attach the toe kick base or levelers.'));
+ if(it.doors.length||Object.keys(it.slides).length)s.push(tr('Instale calços de dobradiça e corrediças.','Install hinge plates and drawer slides.'));
+ if(it.adj||it.fix)s.push(tr('Coloque pinos e prateleiras.','Install shelf pins and shelves.'));
+ if(it.doors.length)s.push(tr('Pendure as portas e regule os vãos.','Hang the doors and adjust the reveals.'));
+ if(it.nDrw)s.push(tr('Instale as gavetas, fixe as frentes e alinhe.','Install the drawer boxes, attach the fronts and align them.'));
+ if(it.pulls)s.push(tr('Instale os puxadores ou embale e identifique.','Install the pulls, or bag and label them.'));
+ s.push(tr('Limpe, etiquete (obra, cômodo, gabinete) e mande para o QC.','Clean, label (job, room, cabinet) and send to QC.'));return s;}
+function buildAsm(rooms,C){
+ let any=false;
+ rooms.forEach(r=>{r.items.filter(i=>(i.num||(i.g||[]).length>=4)&&(i.g||[]).length).forEach(it=>{
+  const A=asmScene(r,it);if(!A)return;any=true;
+  const iw=Math.floor(C.caW*0.56),ih=C.caH-44;
+  const v=render3D(r,{w:'asm',s:it.id},iw,ih,{scene:A.sc,island:true,dir:[-0.75,1,0.6],key:'asm'+it.id+'|'+STD.shopLang});
+  const grp=o=>({front:tr('Frente','Front'),ext:tr('Externo','Exterior'),int:tr('Caixa','Case'),dbox:tr('Gaveta','Drawer box'),edge:tr('Fita','Edge')}[partGroup(o.t)]||'');
+  const rows=A.parts.map(p=>`<tr><td class="no">${p.no}</td><td><b>${esc(p.o.n||p.o.t)}</b><span class="moz">${esc(p.o.t)}</span></td><td class="n">${p.q}</td><td class="n">${frac(p.o.L)} × ${frac(p.o.W)} × ${frac(p.o.T)}</td><td>${esc(grp(p.o))}</td></tr>`);
+  const hw=[];Object.entries(it.hinges).forEach(([k,q])=>hw.push(`${q} × ${tr('dobradiça','hinge')} ${k} + ${tr('calço','plate')}`));
+  Object.entries(it.slides).forEach(([k,q])=>{const [g,len]=k.split('|');hw.push(`${q} ${tr('par(es) de corrediça','pair(s) of slides')} ${g} ${len}"`);});
+  if(it.pulls)hw.push(`${it.pulls} × ${tr('puxador','pull')} ${it.pullName||''}`);if(it.adj)hw.push(`${it.adj*4} × ${tr('pino de prateleira','shelf pin')}`);if(it.lights)hw.push(`${it.lights} × ${tr('luminária','light')}`);
+  const steps=asmSteps(it);
+  const title=`#${it.label} ${it.name}`;const sub=`${r.name} · ${fi(it.W)} × ${fi(it.H)} × ${fi(it.D)}`;
+  const sh=newSheet(title,sub,'NTS',`<div style="display:grid;grid-template-columns:${iw}px minmax(0,1fr);gap:18px;flex:1;min-height:0">
+   <div class="view"><div class="dwg">${v?`<img class="img3d" src="${v.url}" alt="" style="width:${iw}px;height:${ih}px">`:''}</div><div class="vt"><span class="vn">1</span><div><b>${tr('Vista explodida','Exploded view')} — #${esc(it.label)}</b><small>${tr('Números = lista de peças','Numbers match the parts list')} · NTS</small></div></div></div>
+   <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+    <div class="notes"><div class="st-h">${tr('Sequência de montagem','Assembly sequence')}</div><ol>${steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+    ${hw.length?`<div class="notes"><div class="st-h">${tr('Ferragens','Hardware')}</div><ol style="list-style:none;padding:0">${hw.map(x=>`<li>${BOX} ${esc(x)}</li>`).join('')}</ol></div>`:''}
+    <div class="region"></div></div></div>`);
+  flow([{title:tr('Lista de peças','Parts list'),cols:[{h:'No.',w:'9%'},{h:tr('Peça','Part'),w:'41%'},{h:tr('Qtd','Qty'),w:'8%'},{h:'L × W × T',w:'27%'},{h:tr('Grupo','Group'),w:'15%'}],rows}],sh.querySelector('.region'),contOf(title,sub+' · '+tr('continuação','continued')));});});
+ if(!any)newSheet(tr('Plano de montagem','Assembly plan'),'','',`<div class="empty" style="margin:20px">${tr('Nenhum gabinete com peças do Mozaik nos cômodos marcados.','No cabinets with Mozaik parts in the selected rooms.')}</div>`);}
+
+/* ---------- installation ---------- */
+function installSeq(room){const out=[];const walls=[...room.layout.walls].sort((a,b)=>(isIslandWall(a)?1:0)-(isIslandWall(b)?1:0)||a.n-b.n);
+ walls.forEach(w=>[1,2].forEach(s=>{const its=room.items.filter(i=>i.pl&&i.pl.w===w.n&&(i.pl.s||1)===s);
+  const low=its.filter(i=>i.pl.e<300).sort((a,b)=>a.pl.x-b.pl.x),up=its.filter(i=>i.pl.e>=300).sort((a,b)=>a.pl.x-b.pl.x);
+  low.concat(up).forEach(i=>out.push({it:i,w,s}));}));
+ room.items.filter(i=>!i.pl).forEach(i=>out.push({it:i,w:null,s:1}));
+ out.forEach((x,ix)=>x.seq=ix+1);return out;}
+const isFiller=i=>!i.num&&i.pl&&(i.W<160||/fill|panel|scribe|BF\b|end/i.test(i.name+' '+i.desc));
+function fastenZones(room,it){const n=nailersOf(room,it);if(n.length||!it.pl||!it.num)return n;const p=it.pl,h=50;
+ const z=[{z0:p.e+p.H-h-20,z1:p.e+p.H-20,x0:p.x,x1:p.x+p.W}];if(p.e>=300||p.H>1100)z.push({z0:p.e+20,z1:p.e+20+h,x0:p.x,x1:p.x+p.W});return z;}
+function nailersOf(room,it){const out=[];(it.g||[]).forEach(o=>{if(o.t.toUpperCase()!=='NAILER')return;const b=partBox(o);out.push({z0:it.pl.e+b.z0,z1:it.pl.e+b.z1,x0:it.pl.x+b.x0,x1:it.pl.x+b.x1});});return out;}
+function buildInst(rooms,C){
+ rooms.forEach(r=>{const seq=installSeq(r);const seqOf=new Map(seq.map(x=>[x.it,x.seq]));
+  // plan + sequence table
+  const rows=seq.map(x=>{const i=x.it,p=i.pl;const nl=p?nailersOf(r,i).length:0;const notes=[];if(isFiller(i))notes.push(tr('Filler/painel — scribe na obra','Filler/panel — scribe on site'));if(nl)notes.push(nl+' nailer'+(nl>1?'s':''));if(p&&isIslandWall(x.w))notes.push(tr('Ilha — fixar em sarrafos no piso','Island — fasten to floor cleats'));
+   return `<tr><td class="no">${x.seq}</td><td class="no">${esc(i.label)}</td><td><b>${esc(i.name)}</b></td><td>${p?esc(wallLabel(r,{w:p.w,s:p.s||1})):'—'}</td><td class="n">${p?fi(p.x):'—'}</td><td class="n">${p?fi(p.e):'—'}</td><td class="n">${p?fi(p.e+p.H):'—'}</td><td>${esc(notes.join(' · '))}</td></tr>`;});
+  const cols=[{h:tr('Seq.','Seq.'),w:'6%'},{h:'#',w:'6%'},{h:tr('Item','Item'),w:'22%'},{h:tr('Parede','Wall'),w:'14%'},{h:tr('Do canto','From corner'),w:'10%'},{h:tr('Base AFF','Bottom AFF'),w:'10%'},{h:tr('Topo AFF','Top AFF'),w:'10%'},{h:tr('Obs.','Notes'),w:'22%'}];
+  const pw=Math.floor(C.caW*0.4);const pv=r.layout.walls.length?plan(r,pw,C.caH-46):null;
+  const s=newSheet(tr('Planta de instalação','Install plan'),r.name,pv?pv.scale:'',`<div class="cols2" style="grid-template-columns:${pv?pw+'px ':''}minmax(0,1fr)">${pv?`<div class="view"><div class="dwg">${pv.svg}</div><div class="vt"><span class="vn">1</span><div><b>${tr('Planta','Plan')} — ${esc(r.name)}</b><small>${tr('Escala','Scale')} ${esc(pv.scale)} · ${tr('números = gabinete','numbers = cabinet')}</small></div></div></div>`:''}<div class="region"></div></div>`);
+  flow([{title:tr('Ordem de instalação','Install sequence'),cols,rows}],s.querySelector('.region'),contOf(tr('Planta de instalação','Install plan'),r.name+' · '+tr('continuação','continued')));
+  // one elevation per wall side with sequence, nailers, fillers, level line and hardware to bring
+  const done=new Set();
+  wallSides(r).forEach(ws=>{const wl=r.layout.walls.find(x=>x.n===ws.w);const isl=isIslandWall(wl);if(isl&&done.has(ws.w))return;done.add(ws.w);
+   const lab=isl?tr('Ilha','Island'):wallLabel(r,ws);const its=r.items.filter(i=>i.pl&&i.pl.w===ws.w&&(isl||(i.pl.s||1)===ws.s));
+   const ev=elevation(r,isl?{w:ws.w,s:1}:ws,C.caW,Math.floor(C.caH*0.62),{install:{seqOf,isl}});if(!ev)return;
+   const sum=(fn)=>its.reduce((a,i)=>a+(fn(i)||0),0);
+   const hinges=sum(i=>Object.values(i.hinges).reduce((a,v)=>a+v,0)),slides=sum(i=>Object.values(i.slides).reduce((a,v)=>a+v,0)),pulls=sum(i=>i.pulls);
+   const nails=isl?[]:its.flatMap(i=>fastenZones(r,i));const studs=nails.reduce((a,n)=>a+Math.floor((n.x1-n.x0)/406.4)+1,0);
+   const base=its.filter(i=>i.num&&i.pl.e<300).sort((a,b)=>a.pl.x-b.pl.x),upp=its.filter(i=>i.num&&i.pl.e>=300).sort((a,b)=>a.pl.x-b.pl.x);
+   const joints=list=>list.reduce((a,i,ix)=>a+(ix&&Math.abs(list[ix-1].pl.x+list[ix-1].pl.W-i.pl.x)<5?1:0),0);
+   const jn=joints(base)+joints(upp);
+   const hwRows=[[tr('Parafusos de fixação na parede (faixas vermelhas, 1 por montante a cada 16")','Wall screws (red bands, 1 per stud @ 16" o.c.)'),isl?'—':String(studs)],
+    [tr('Parafusos entre gabinetes (4 por junta)','Cabinet-to-cabinet screws (4 per joint)'),String(jn*4)],
+    [tr('Calços / shims','Shims'),tr('1 pacote','1 bundle')],
+    [isl?tr('Sarrafos de piso para a ilha','Floor cleats for the island'):tr('Dobradiças para regular (já montadas)','Hinges to adjust (pre-installed)'),isl?tr('conforme o perímetro','per perimeter'):String(hinges)],
+    [tr('Corrediças (pares, já montadas)','Slides (pairs, pre-installed)'),String(slides)],[tr('Puxadores a instalar','Pulls to install'),String(pulls)]].filter(x=>x[1]!=='0');
+   newSheet(tr('Elevação de instalação','Install elevation'),r.name+' — '+lab,ev.scale,`<div class="view" style="flex:none"><div class="dwg">${ev.svg}</div><div class="vt"><span class="vn">2</span><div><b>${tr('Instalação','Install')} — ${esc(lab)}</b><small>${tr('Escala','Scale')} ${esc(ev.scale)} · ${tr('quadrado vermelho = ordem de instalação','red square = install order')}</small></div></div></div>
+    <div class="cols2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div><div class="st-h">${tr('Levar para esta parede','Bring for this wall')}</div><table class="st"><colgroup><col style="width:78%"><col style="width:22%"></colgroup><tbody>${hwRows.map(x=>`<tr><td>${BOX} ${esc(x[0])}</td><td class="n"><b>${esc(x[1])}</b></td></tr>`).join('')}</tbody></table><p class="moz" style="margin:4px 0 0">${tr('Quantidades de parafusos estimadas pelo comprimento dos nailers e juntas.','Screw counts estimated from nailer lengths and joints.')}</p></div>
+    <div class="notes"><div class="st-h">${tr('Notas de instalação','Install notes')}</div><ol>
+     <li>${tr('Marque a linha de nível (tracejado vermelho) antes de começar; calce os gabinetes de base até ela.','Snap the level line (red dashed) first; shim the base cabinets up to it.')}</li>
+     ${isl?`<li>${tr('A ilha não encosta na parede: fixe em sarrafos parafusados no piso.','The island is free-standing: fasten it to cleats screwed to the floor.')}</li>`:`<li>${tr('Localize os montantes e fixe pelas faixas vermelhas (nailers, ou topo/base do fundo quando não há nailer).','Locate studs and fasten through the red bands (nailers, or top/bottom of the back where there is no nailer).')}</li>`}
+     <li>${tr('Fillers e painéis (contorno laranja) têm sobra para scribe: ajuste na obra.','Fillers and panels (orange outline) carry scribe allowance: fit on site.')}</li>
+     <li>${tr('Instale na ordem dos quadrados vermelhos.','Install in the order of the red squares.')}</li></ol></div></div>`);});});}
+
+/* ---------- checklists ---------- */
+function buildChk(rooms,C){
+ const cabCols=[[tr('Peças ok','Parts ok'),'a2'],[tr('Montado','Assembled'),'a6'],[tr('Esquadro','Square'),'a7'],[tr('Portas/gavetas reguladas','Doors/drawers adjusted'),'a12'],[tr('Ferragens','Hardware'),'q8'],[tr('Limpo e etiquetado','Clean & labeled'),'a16'],[tr('QC aprovado','QC approved'),'q12'],[tr('Embalado','Wrapped'),'l4'],[tr('Carregado','Loaded'),'l6']];
+ const partCols=[tr('Cortado','Cut'),tr('Fita','Banded'),tr('Etiquetado','Labeled'),tr('QC','QC'),tr('Carregado','Loaded')];
+ newSheet(tr('Checagem — como usar','Checklists — how to use'),'','',`<div class="notes" style="max-width:760px"><div class="st-h">${tr('Duas formas de marcar','Two ways to check off')}</div><ol>
+  <li>${tr('No iPad: abra o app “Checklists de gabinetes” e importe este mesmo job do Mozaik. Cada pessoa marca a sua parte e todos veem na hora.','On the iPad: open the “Cabinet checklists” app and import this same Mozaik job. Each person checks their part and everyone sees it live.')}<br><b>${esc(CHECKLIST_URL)}</b></li>
+  <li>${tr('No papel: imprima as folhas a seguir e marque à mão. Uma linha por gabinete, uma coluna por etapa.','On paper: print the next sheets and check by hand. One row per cabinet, one column per step.')}</li></ol></div>`);
+ rooms.forEach(r=>{
+  const cabs=r.items.filter(i=>i.num),parts=r.items.filter(i=>!i.num);
+  const cw=Math.floor(62/cabCols.length*10)/10;
+  const cc=[{h:'#',w:'5%'},{h:tr('Gabinete','Cabinet'),w:'21%'}].concat(cabCols.map(c=>({h:c[0],w:cw+'%'})),[{h:tr('Obs.','Notes'),w:'12%'}]);
+  const rows=cabs.map(i=>`<tr><td class="no">${esc(i.label)}</td><td><b>${esc(i.name)}</b><span class="moz">${fi(i.W)} × ${fi(i.H)} × ${fi(i.D)}</span></td>${cabCols.map(()=>`<td class="ck">${BOX}</td>`).join('')}<td></td></tr>`);
+  const pc=[{h:'ID',w:'6%'},{h:tr('Peça','Part'),w:'28%'},{h:tr('Medida','Size'),w:'18%'}].concat(partCols.map(c=>({h:c,w:'7%'})),[{h:tr('Obs.','Notes'),w:'13%'}]);
+  const prow=parts.map(i=>`<tr><td class="no">${esc(i.label)}</td><td><b>${esc(i.name)}</b></td><td class="n">${fi(i.W)} × ${fi(i.H)} × ${fi(i.D)}</td>${partCols.map(()=>`<td class="ck">${BOX}</td>`).join('')}<td></td></tr>`);
+  const blocks=[];if(rows.length)blocks.push({title:tr('Gabinetes','Cabinets'),cols:cc,rows,cls:'ckt'});if(prow.length)blocks.push({title:tr('Peças avulsas, painéis e fillers','Loose parts, panels and fillers'),cols:pc,rows:prow,cls:'ckt'});
+  if(!blocks.length)return;
+  const s=newSheet(tr('Checagem de produção','Production checklist'),r.name,'','<div class="region"></div>');
+  flow(blocks,s.querySelector('.region'),contOf(tr('Checagem de produção','Production checklist'),r.name+' · '+tr('continuação','continued')));});
+ const TRUCK_L=[['Endereço e contato da obra confirmados','Delivery address and site contact confirmed'],['Acesso e estacionamento confirmados','Site access and parking confirmed'],['Ordem de carga planejada (primeiro cômodo a descer entra por último)','Load order planned (first room off goes on last)'],['Contagem de itens confere com este checklist','Item count matches this checklist'],['Cobertores de mudança','Moving blankets'],['Cintas e catracas','Straps and ratchets'],['Carrinho / paleteira','Dolly / hand truck'],['Proteção de piso e parede','Floor and wall protection'],['Caixas de ferragens carregadas','Hardware boxes loaded'],['Kit de retoque e sobra de filler','Touch-up kit and extra filler stock'],['Desenhos / lista de cômodos impressos','Printed drawings / room list'],['Foto da carga antes de sair','Photo of the load before leaving'],['Descarregado e separado por cômodo na obra','Unloaded and staged by room on site'],['Foto na entrega','Photo at drop-off'],['Entrega assinada pelo cliente / GC','Delivery signed off by client / GC']];
+ const FINAL_L=[['Todos os cômodos revisados','Every room reviewed'],['Acabamento confere com a amostra aprovada','Finish matches the approved sample'],['Contagem de ferragens confere com o pedido','Hardware count matches the order'],['Peças avulsas completas em todos os cômodos','Loose parts complete for every room'],['Problemas registrados e resolvidos','Issues logged and resolved'],['Liberado para entrega','Released for delivery']];
+ const li=a=>a.map(x=>`<li>${BOX} ${esc(tr(x[0],x[1]))}</li>`).join('');
+ newSheet(tr('Entrega e liberação final','Delivery and final release'),'','',`<div class="cols2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div class="notes"><div class="st-h">${tr('Checklist do caminhão','Truck checklist')}</div><ol class="cklist">${li(TRUCK_L)}</ol></div>
+  <div class="notes"><div class="st-h">${tr('Liberação final de qualidade','Final quality release')}</div><ol class="cklist">${li(FINAL_L)}</ol>
+  <div class="apprbig" style="margin-top:16px"><div class="sig"><div><span>${tr('Liberado por','Released by')}</span></div><div><span>${tr('Data','Date')}</span></div></div><div style="height:6px"></div></div></div></div>`);}
+
+/* ---------------- PDF export ---------------- */
+async function exportPdf(tabKey){
+ if(typeof tabKey!=='string')tabKey=S.tab||'sd';const keep=S.tab;S.tab=tabKey;
+ if(!S.job){status('Selecione um job primeiro.');S.tab=keep;return;}
+ if(!window.jspdf||!window.html2canvas){status('O gerador de PDF não carregou. Recarregue a página.');return;}
+ const btn=$('pdfBtn');btn.disabled=true;
+ try{
+  clearTimeout(buildTimer);buildSheets();
+  const P=paper();const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'in',format:P.in,compress:true});
+  const host=$('exportHost');
+  for(let ix=0;ix<SHEETS.length;ix++){
+   status(`Gerando PDF… folha ${ix+1} de ${SHEETS.length}`);
+   const c=SHEETS[ix].sh.cloneNode(true);c.style.transform='none';host.innerHTML='';host.appendChild(c);
+   const cv=await window.html2canvas(c,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:true,width:P.w,height:P.h,windowWidth:P.w+40,windowHeight:P.h+40,scrollX:0,scrollY:0});
+   if(ix>0)pdf.addPage(P.in,'landscape');
+   pdf.addImage(cv.toDataURL('image/jpeg',0.86),'JPEG',0,0,P.in[0],P.in[1]);
+  }
+  host.innerHTML='';
+  const name=`${(S.info.project||'Project').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-')}_${tabOf(tabKey).file}${tabKey==='sd'?'_'+(S.info.rev||'').replace(/\s+/g,''):''}.pdf`;
+  await saveBlob(name,pdf.output('blob'));
+ }catch(e){console.error(e);status('Não foi possível gerar o PDF: '+(e.message||e));}
+ btn.disabled=false;if(keep!==tabKey){S.tab=keep;buildSheets();}}
+async function exportAll(){for(const t of TABS){await exportPdf(t.k);}status('5 PDFs gerados.');}
+let dl;async function getDl(){if(dl!==undefined)return dl;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;}catch(e){dl=null;}return dl;}
+async function saveBlob(name,blob){
+ if(window.__hwSave){await window.__hwSave(name,blob);return;}
+ const d=await getDl();
+ if(d){try{await d.save({filename:name,data:blob});status('PDF salvo: '+name);}catch(err){status(err&&err.code==='declined'?'Download cancelado.':'Não deu para salvar o PDF aqui. Abra a página no navegador do computador e tente de novo.');}}
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();status('PDF gerado: '+name);}}
+
+/* ---------------- events ---------------- */
+const fileIn=$('file'),drop=$('drop');
+fileIn.addEventListener('change',e=>{if(e.target.files.length)handleFiles([...e.target.files]);e.target.value='';});
+$('folder').addEventListener('change',e=>{const fs=[...e.target.files].filter(f=>(/(^|[\\/])Room\d+\.des$/i.test(f.webkitRelativePath||f.name)||/\.opt$/i.test(f.name))&&(f.webkitRelativePath||'').split('/').length<=2||/jobdat\.dat$/i.test(f.name));
+ if(fs.length)handleFiles(fs);else status('Essa pasta não tem arquivos Room*.des. Escolha a pasta do job dentro de C:\\Mozaik\\Jobs.');e.target.value='';});
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');if(e.dataTransfer.files.length)handleFiles([...e.dataTransfer.files]);});
+$('jobInfo').addEventListener('change',e=>{const r=e.target.getAttribute('data-room');if(!r)return;S.sel[r]=e.target.checked;saveJob();renderSpec();renderSwatches();scheduleBuild(200);});
+$('swatches').addEventListener('input',e=>{const n=e.target.getAttribute('data-sw');if(n==null)return;STD.swatch[n]=e.target.value;swatchVer++;saveStd();scheduleBuild(500);});
+INFO_KEYS.forEach(k=>{const el=$('i_'+k);el.addEventListener('input',()=>{S.info[k]=el.value;if(k==='designer'){STD.designer=el.value;saveStd();}saveJob();scheduleBuild(k==='paper'?50:600);});});
+$('i_render').addEventListener('change',e=>{pickRender(e.target.value);});
+$('renderFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;
+ if(S.renderUrl&&S.renderUrl.startsWith('blob:'))URL.revokeObjectURL(S.renderUrl);S.renderUrl=URL.createObjectURL(f);S.renderKey='upload';renderRenderSelect();scheduleBuild(100);e.target.value='';});
+$('logoFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;const rd=new FileReader();rd.onload=()=>{STD.logo=rd.result;saveStd();renderCompany();scheduleBuild(100);};rd.readAsDataURL(f);e.target.value='';});
+$('logoClear').addEventListener('click',()=>{STD.logo=null;saveStd();renderCompany();scheduleBuild(100);});
+[['c_name','name'],['c_web','web'],['c_phone','phone']].forEach(([id,k])=>$(id).addEventListener('input',e=>{STD.company[k]=e.target.value;saveStd();scheduleBuild(600);}));
+$('c_notes').addEventListener('input',e=>{STD.notes=e.target.value;saveStd();scheduleBuild(800);});
+$('specEditor').addEventListener('input',e=>{const el=e.target;const rid=el.getAttribute('data-r'),fk=el.getAttribute('data-f');if(!rid)return;
+ const r=S.job.rooms.find(x=>x.id===rid);setVal(r,FK[fk],el.value);el.classList.toggle('tbd',!el.value.trim());
+ // propagate remembered value to other rooms with the same Mozaik value
+ const m=mozOf(r,FK[fk]);document.querySelectorAll(`#specEditor input[data-f="${fk}"]`).forEach(o=>{if(o===el)return;const r2=S.job.rooms.find(x=>x.id===o.getAttribute('data-r'));
+  if(r2&&!Object.prototype.hasOwnProperty.call(S.edits,r2.id+'|'+fk)&&mozOf(r2,FK[fk])===m){o.value=valOf(r2,FK[fk]);o.classList.toggle('tbd',!o.value.trim());}});
+ scheduleBuild(700);});
+$('specEditor').addEventListener('click',e=>{const k=e.target.getAttribute&&e.target.getAttribute('data-all');if(!k)return;const rooms=selRooms().filter(r=>shown(r,FK[k]));if(!rooms.length)return;
+ const v=valOf(rooms[0],FK[k]);rooms.slice(1).forEach(r=>{S.edits[r.id+'|'+k]=v;});saveJob();renderSpec();scheduleBuild(200);});
+$('pdfBtn').addEventListener('click',()=>exportPdf());
+S.tab='sd';STD.shopLang=STD.shopLang||'pt';$('shopLang').value=STD.shopLang;
+function renderTabs(){$('ptabs').innerHTML=TABS.map(t=>`<button type="button" role="tab" data-tab="${t.k}" aria-selected="${S.tab===t.k}">${esc(t.pt)}</button>`).join('');
+ $('ncDrop').hidden=S.tab!=='cut';$('ncList').hidden=S.tab!=='cut';$('chkLink').hidden=S.tab!=='chk';$('shopLang').closest('label').hidden=S.tab==='sd';
+ $('pdfBtn').textContent=(window.__hwSave?'Salvar no lead — ':'Baixar PDF — ')+tabOf(S.tab).pt;}
+function renderNcList(){const n=(S.nc||[]).length;$('ncList').textContent=n?`${n} chapa${n>1?'s':''} de G-code carregada${n>1?'s':''}.`:'';}
+$('ptabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;S.tab=b.dataset.tab;renderTabs();scheduleBuild(0);});
+$('shopLang').addEventListener('change',e=>{STD.shopLang=e.target.value;saveStd();scheduleBuild(0);});
+$('ncFile').addEventListener('change',async e=>{const fs=[...e.target.files];e.target.value='';const out=[];for(const f of fs){try{out.push(parseNC(await f.text(),f.name));}catch(err){}}
+ S.nc=(S.nc||[]).concat(out);renderNcList();status(out.length+' arquivo(s) de G-code lido(s).');scheduleBuild(0);});
+$('allBtn').addEventListener('click',exportAll);
+renderTabs();
+let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(fitPreviews,120);});
+window.__sd={handleFiles,S,buildSheets,renderTabs};
+
+/* ---------------- boot ---------------- */
+renderCompany();renderJobInfo();renderRenderSelect();renderSpec();
+let sample=null;try{sample=JSON.parse($('sample').textContent);}catch(e){}
+const start=()=>{buildSheets();status('Selecione o job do Mozaik para começar.');};
+if(document.fonts&&document.fonts.ready)Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]).then(start);else start();
+getDl();
+})();
+</script>
+
+
+<script>
+/* Heartwood CRM: abre o job do lead direto do Drive e salva os PDFs na pasta do lead */
+(function(){
+ if(!(window.google&&google.script&&google.script.url))return;
+ function run(fn){var a=[].slice.call(arguments,1),n=0;return new Promise(function(res,rej){(function go(){var r=google.script.run.withSuccessHandler(res).withFailureHandler(rej);if(typeof r[fn]==='function')r[fn].apply(r,a);else if(++n<40)setTimeout(go,250);else rej(new Error('servidor indisponível ('+fn+')'));})();});}
+ function st(t){var e=document.getElementById('status');if(e)e.textContent=t;}
+ var CAT={'Shop-Drawings':'Shop drawings','Cut-Plan':'Cut list / CNC','Assembly-Plan':'Assembly','Install-Plan':'Install plan','Checklists':'Checagem / QC'};
+ var boot=function(){google.script.url.getLocation(function(loc){
+  var id=(loc.parameter||{}).lead;if(!/^L-\d{1,6}$/.test(id||''))return;
+  var pin='',user='Equipe';try{pin=localStorage.getItem('hwPin')||'';user=localStorage.getItem('hwUser')||'Equipe';}catch(e){}
+  if(!pin){pin=window.prompt('PIN da equipe Heartwood')||'';try{localStorage.setItem('hwPin',pin);}catch(e){}}
+  var bar=document.createElement('div');
+  bar.style.cssText='position:sticky;top:0;z-index:50;background:#1f3a2e;color:#f6efe0;padding:10px 16px;font:600 14px Archivo,Arial,sans-serif;display:flex;gap:12px;align-items:center;flex-wrap:wrap';
+  bar.innerHTML='<span>Lead '+id+' — os PDFs gerados aqui são salvos na pasta do lead no CRM.</span><span id="hwLeadSt" style="font-weight:400;opacity:.85"></span>';
+  document.body.insertBefore(bar,document.body.firstChild);
+  var lst=function(t){document.getElementById('hwLeadSt').textContent=t;};
+  window.__hwSave=async function(name,blob){
+   var key=Object.keys(CAT).filter(function(k){return name.indexOf('_'+k)>=0;})[0];
+   var b64=await new Promise(function(res){var rd=new FileReader();rd.onload=function(){res(String(rd.result).split(',')[1]);};rd.readAsDataURL(blob);});
+   st('Salvando no lead: '+name+'…');
+   try{await run('savePdf',pin,user,id,name,b64,CAT[key]||'Outros');st('Salvo no lead '+id+': '+name);lst('Último salvo: '+name);}
+   catch(e){st('Não consegui salvar no lead: '+(e&&e.message||e));}
+  };
+  if(window.__sd&&window.__sd.renderTabs)window.__sd.renderTabs();
+  var ab=document.getElementById('allBtn');if(ab)ab.textContent='Gerar os 5 PDFs e salvar no lead';
+  lst('Carregando o job do Mozaik do lead…');
+  run('getJobFiles',pin,id).then(async function(d){
+   if(!d||!d.zip){lst('Este lead ainda não tem projeto Mozaik importado. Importe o job no CRM primeiro, ou arraste o .zip aqui.');return;}
+   var src=await JSZip.loadAsync(d.zip,{base64:true}),out=new JSZip(),dir=(d.jobName||d.name||'Job').replace(/[\\/:*?"<>|]+/g,' ').trim()||'Job';
+   var ents=Object.values(src.files).filter(function(e){return !e.dir;});
+   for(var i=0;i<ents.length;i++){out.file(dir+'/'+ents[i].name.split('/').pop(),await ents[i].async('uint8array'));}
+   var blob=await out.generateAsync({type:'blob'});
+   await window.__sd.handleFiles([new File([blob],dir+'.zip',{type:'application/zip'})]);
+   if(d.cover){var S=window.__sd.S;S.renderUrl='data:image/jpeg;base64,'+d.cover;S.renderKey='upload';window.__sd.buildSheets();}
+   lst('Job carregado do lead. Confira os campos e gere os PDFs.');
+  }).catch(function(e){lst('Não consegui abrir o job do lead: '+(e&&e.message||e));});
+ });};
+ if(document.readyState==='complete')setTimeout(boot,200);else window.addEventListener('load',function(){setTimeout(boot,200);});
+})();
+</script>
+</body></html>
