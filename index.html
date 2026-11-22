@@ -160,7 +160,7 @@
 <header>
   <h1>Heartwood <span>CRM</span></h1>
   <button class="primary" id="newBtn">+ Novo lead</button>
-  <input id="search" placeholder="Buscar nome, endereço, ID…">
+  <input id="search" type="search" name="crm-search" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Buscar nome, endereço, ID…">
   <select id="divFilter">
     <option value="all">Todas as divisões</option>
     <option>Cabinetry</option>
@@ -259,13 +259,13 @@
 </div>
 
 <div id="login" class="overlay hidden" style="justify-content:center">
-  <div class="modal">
+  <form class="modal" id="loginForm" onsubmit="return false">
     <h3 style="margin-top:0">Heartwood CRM — Equipe</h3>
-    <label class="muted">Seu nome<input id="loginName" placeholder="Ex.: Bruno"></label>
-    <label class="muted">PIN da equipe<input id="loginPin" type="password" inputmode="numeric" autocomplete="off"></label>
-    <button class="primary" id="loginBtn" style="width:100%">Entrar</button>
+    <label class="muted">Seu nome<input id="loginName" name="username" autocomplete="username" placeholder="Ex.: Bruno"></label>
+    <label class="muted">PIN da equipe<input id="loginPin" name="pin" type="password" inputmode="numeric" autocomplete="current-password"></label>
+    <button type="button" class="primary" id="loginBtn" style="width:100%">Entrar</button>
     <p class="muted" id="loginMsg"></p>
-  </div>
+  </form>
 </div>
 
 <div id="lb" class="overlay hidden" style="justify-content:center;align-items:center;flex-direction:column;background:rgba(15,10,6,.9)"><img id="lbImg" style="max-width:96vw;max-height:84vh;border-radius:6px;background:#fff"><div style="color:#fff;margin-top:8px;display:flex;gap:10px;align-items:center"><button id="lbPrev">‹</button><span id="lbCap"></span><button id="lbNext">›</button><a id="lbOpen" target="_blank" style="color:#f3d9b5">abrir no Drive</a><button id="lbClose">✕</button></div></div>
@@ -1741,6 +1741,24 @@ document.addEventListener('DOMContentLoaded', function () {
   if (S.pin) load(); else showLogin();
   setInterval(function () { if (S.pin && !S.cur && !document.hidden) load(); }, 60000);
 });
+</script>
+<script>
+/* Evita que o preenchimento automático do Chrome coloque o nome do login na busca e esconda os leads */
+(function(){
+  function limpar(){
+    var s=document.getElementById('search');
+    if(s && s.value && document.activeElement!==s && !s.dataset.userTyped){
+      s.value='';
+      ['input','keyup','change'].forEach(function(t){ s.dispatchEvent(new Event(t,{bubbles:true})); });
+    }
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    var s=document.getElementById('search');
+    if(s) s.addEventListener('keydown',function(){ s.dataset.userTyped='1'; });
+    [300,1000,2500].forEach(function(ms){ setTimeout(limpar,ms); });
+    document.addEventListener('click',function(){ setTimeout(limpar,50); },true);
+  });
+})();
 </script>
 </body>
 </html>
